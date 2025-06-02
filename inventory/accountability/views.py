@@ -55,7 +55,7 @@ def GetLogByLastName(request: HttpRequest):
 
     try:
         log_by_first_name = AccountRecord.objects\
-            .filter(last_name=last_name)\
+            .filter(last_name__icontains=last_name)\
             .order_by('first_name', '-created_at')\
             .values()\
             [:100]
@@ -89,23 +89,30 @@ def Checkout(request: HttpRequest):
         data = request.POST
         chest_id = data.get('chest_id')
         item_id = data.get('item_id')
+        validate = (chest_id is not None) ^ (item_id is not None)
         rank = data.get('rank', 'NONE')
         first_name = data.get('first_name', '').strip().upper()
         last_name = data.get('last_name').strip().upper()
-        qty = int(data.get('qty', '1'))
         action = True
 
-        if (not chest_id and not item_id) or not last_name or not rank:
+        if not last_name or not rank:
             return JsonResponse({'error': 'Missing required parameters'}, status=400)
+        
+        if not validate:
+            return JsonResponse({'error': 'Must specify either chest_id or item_id, but not both'}, status=400)
 
-        chest = None
+        qty = 1
+        chest: Chest = None
+        item: Item = None
+        
         if chest_id:
             chest = Chest.objects.filter(id=chest_id).first()
             if not chest:
                 return JsonResponse({'error': 'Chest not found'}, status=404)
-
-        item = None
-        if item_id:
+        elif item_id:
+            qty = int(data.get('qty')) or qty
+            if qty < 1:
+                return JsonResponse({'error': 'Quantity must be at least 1'}, status=400)
             item = Item.objects.filter(id=item_id).first()
             if not item:
                 return JsonResponse({'error': 'Item not found in the specified chest'}, status=404)
@@ -119,6 +126,12 @@ def Checkout(request: HttpRequest):
             qty=qty,
             action=action)
         record.save()
+        
+        if item_id:
+            item.qty_real -= qty
+            if item.qty_real < 0:
+                return JsonResponse({'error': 'Insufficient quantity in item'}, status=400)
+            item.save()
 
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:
@@ -135,10 +148,17 @@ def Checkin(request: HttpRequest):
         if not id:
             return JsonResponse({'error': 'Missing required id parameters'}, status=400)
 
-        record = AccountRecord.objects.get(id=id)
+        record: AccountRecord = AccountRecord.objects.get(id=id)
         
         if not record:
             return JsonResponse({'message': 'Nothing to do'}, status=204)
+        
+        if record.item is not None:
+            item = Item.objects.filter(id=record.item_id).first()
+            if not item:
+                return JsonResponse({'error': 'Item not found'}, status=404)
+            item.qty_real += record.qty
+            item.save()
         
         record.pk = None
         record.action = False
