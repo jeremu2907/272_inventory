@@ -33,10 +33,10 @@ export default function ItemDetail() {
     }, [item.chest]);
 
     return (
-        <div className="flex flex-col gap-4 p-4">
-            <h1 className="text-2xl font-bold">{item.name}</h1>
-            {item.nameExt && <h2 className="text-lg font-medium text-muted-foreground">{item.nameExt}</h2>}
-            {item.nsn && <p className="text-sm text-muted-foreground">NSN: {item.nsn}</p>}
+        <div className="flex flex-col gap-4 p-4 text-left">
+            <h1 className="text-2xl font-bold text-center">{item.name}</h1>
+            {item.nameExt && <h2 className="text-lg font-medium text-muted-foreground text-center">{item.nameExt}</h2>}
+            {item.nsn && <p className="text-sm text-muted-foreground text-center">{item.nsn}</p>}
 
             <div className="flex items-center gap-4">
                 <span className="font-semibold">Total Assigned:</span>
@@ -51,8 +51,8 @@ export default function ItemDetail() {
             {chest ? (
                 <>
                     <h1 className="mt-4 font-semibold">Found in the following Chest:</h1>
-                    <p className="text-lg font-medium text-muted-foreground">{chest.description}</p>
-                    <p className="text-muted-foreground">{chest.nsn}</p>
+                    <p className="text-lg font-medium text-muted-foreground text-center">{chest.description}</p>
+                    <p className="text-sm text-muted-foreground text-center">{chest.nsn}</p>
 
                     <div className="flex items-center gap-4">
                         <span className="font-semibold">Serial:</span>

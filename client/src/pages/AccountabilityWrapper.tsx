@@ -51,7 +51,7 @@ export default function AppWrapper() {
     }, [chest]);
 
     return (
-        <>
+        <div className='pt-4'>
             <Breadcrumb>
                 <BreadcrumbList>
                     {plt && <><BreadcrumbItem>
@@ -68,6 +68,6 @@ export default function AppWrapper() {
                 </BreadcrumbList>
             </Breadcrumb>
             <Outlet />
-        </>
+        </div>
     );
 }

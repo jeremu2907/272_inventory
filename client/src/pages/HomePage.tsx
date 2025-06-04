@@ -115,8 +115,11 @@ export default function HomePage() {
                 placeholder="Search by serial, name, size, or NSN"
             />
             {initSearch && searching && <p>Searching...</p>}
+            {chestResults.length === 0 && itemResults.length === 0 && initSearch && !searching && (
+                <p className="text-muted-foreground">No results found</p>
+            )}
             <Accordion type="single" collapsible className="mt-4">
-                {chestResults.length > 0 ? (
+                {chestResults.length > 0 && (
                     <AccordionItem value="item-1">
                         <AccordionTrigger><h2 className="text-lg font-bold text-left">Chest</h2></AccordionTrigger>
                         <AccordionContent>
@@ -125,13 +128,8 @@ export default function HomePage() {
                             ))}
                         </AccordionContent>
                     </AccordionItem>)
-                    : (
-                        <>
-                            {initSearch && !searching && <p>No chest with NSN, description, or serial found</p>}
-                        </>
-                    )
                 }
-                {itemResults.length > 0 ?
+                {itemResults.length > 0 &&
                     <AccordionItem value="item-2">
                         <AccordionTrigger>
                             <h2 className="text-lg font-bold text-left">Individual Items</h2>
@@ -142,44 +140,8 @@ export default function HomePage() {
                             ))}
                         </AccordionContent>
                     </AccordionItem>
-                    :
-                    <>
-                        {initSearch && !searching && <p>No items with NSN, name, or size found</p>}
-                    </>
                 }
             </Accordion>
-            <div className="mt-4">
-                {/* <div className="mt-2 flex flex-col gap-4">
-                    {chestResults.length > 0 ? (
-                        <>
-                            <h2 className="text-2xl font-bold text-left">Chest</h2>
-                            {chestResults.map(chest => (
-                                <ChestSearchResult key={chest.id} chest={chest} />
-                            ))}
-                        </>
-                    ) : (
-                        <>
-                            {initSearch && !searching && <p>No chest with NSN, description, or serial found</p>}
-                            {initSearch && searching && <p>Searching...</p>}
-                        </>
-                    )}
-                </div> */}
-                {/* <div className="mt-2 flex flex-col gap-4 mt-4"> */}
-                    {/* {itemResults.length > 0 ?
-                        <>
-                            <h2 className="text-2xl font-bold text-left">Individual Items</h2>
-                            {itemResults.map(item => (
-                                <ItemSearchResult key={item.id} item={item} />
-                            ))}
-                        </>
-                        :
-                        <>
-                            {initSearch && !searching && <p>No items with NSN, name, or size found</p>}
-                            {initSearch && searching && <p>Searching...</p>}
-                        </>
-                    }
-                </div> */}
-            </div>
         </div>
     );
 }
