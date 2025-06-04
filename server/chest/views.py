@@ -10,6 +10,22 @@ def ChestApi(request):
             return JsonResponse({'chests': list(chests)}, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+def GetChestBySerialAndSetNum(request: HttpRequest):
+    try:
+        if request.method == 'GET':
+            serial = request.GET.get('serial')
+            set_number = request.GET.get('set_number')
+            if not serial or not set_number:
+                return JsonResponse({'error': 'Missing "serial" or "set_number" parameter'}, status=400)
+
+            chest = Chest.objects.filter(serial=serial, set_number=set_number).values().first()
+            if not chest:
+                return JsonResponse({'error': 'Chest not found'}, status=404)
+
+            return JsonResponse(chest, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 def SearchChestApi(request: HttpRequest):
     try:
@@ -18,7 +34,7 @@ def SearchChestApi(request: HttpRequest):
             if not serial:
                 return JsonResponse({'error': 'Missing "serial" parameter'}, status=400)
 
-            chests = Chest.objects.filter(serial=serial).values()
+            chests = Chest.objects.filter(serial__icontains=serial).values()
             return JsonResponse({'chests': list(chests)}, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
@@ -38,6 +54,6 @@ def ItemApi(request):
                 return JsonResponse({'error': 'Chest not found'}, status=404)
 
             items = Item.objects.filter(chest_id=chest.id).values()
-            return JsonResponse({'items': list(items)}, safe=False)
+            return JsonResponse(list(items), safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

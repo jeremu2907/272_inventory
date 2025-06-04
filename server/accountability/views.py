@@ -116,6 +116,10 @@ def Checkout(request: HttpRequest):
             item = Item.objects.filter(id=item_id).first()
             if not item:
                 return JsonResponse({'error': 'Item not found in the specified chest'}, status=404)
+            item.qty_real -= qty
+            if item.qty_real < 0:
+                return JsonResponse({'error': 'Insufficient on-hand quantity'}, status=400)
+            item.save()
 
         record = AccountRecord(
             chest=chest,
@@ -126,12 +130,6 @@ def Checkout(request: HttpRequest):
             qty=qty,
             action=action)
         record.save()
-        
-        if item_id:
-            item.qty_real -= qty
-            if item.qty_real < 0:
-                return JsonResponse({'error': 'Insufficient quantity in item'}, status=400)
-            item.save()
 
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:
