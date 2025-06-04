@@ -5,20 +5,12 @@ import { useEffect, useState } from 'react';
 import AxiosInstance from '@/axios/AxiosInstance';
 import type { Chest } from '@/types/Chest';
 import { useChest } from '@/context/ChestContext';
+import { pltSuffix } from '@/lib/utils';
 
 export default function AppWrapper() {
     const { plt, chestSerial, chestSetNumber } = useParams();
     const { chest, setChest } = useChest();
     const [ setTotal, setSetTotal] = useState<number | null>(null);
-
-    const pltSuffix = () => {
-        if (Number.isNaN(Number(plt))) return '';
-
-        if (plt?.at(plt.length - 1) === '1') return 'st PLT';
-        if (plt?.at(plt.length - 1) === '2') return 'nd PLT';
-        if (plt?.at(plt.length - 1) === '3') return 'rd PLT';
-        return 'th PLT';
-    }
 
     // TODO: Add number of chests in set to breadcrumb
 
@@ -63,7 +55,7 @@ export default function AppWrapper() {
             <Breadcrumb>
                 <BreadcrumbList>
                     {plt && <><BreadcrumbItem>
-                        <BreadcrumbLink href={`/${plt}`}>{plt}{pltSuffix()}</BreadcrumbLink>
+                        <BreadcrumbLink href={`/${plt}`}>{plt}{pltSuffix(plt)}</BreadcrumbLink>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
                     }
                     {plt && chestSerial && <><BreadcrumbItem>

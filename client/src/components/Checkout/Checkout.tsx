@@ -1,32 +1,7 @@
-import { useChest } from "@/context/ChestContext";
-import type { Chest } from "@/types/Chest";
-import { useEffect, useState } from "react";
+import AxiosInstance from "@/axios/AxiosInstance";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    type ColumnDef,
-    type ColumnFiltersState,
-    flexRender,
-    getCoreRowModel,
-    getFilteredRowModel,
-    getPaginationRowModel,
-    getSortedRowModel,
-    type SortingState,
-    useReactTable,
-    type VisibilityState,
-} from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-    DropdownMenu,
-    DropdownMenuCheckboxItem,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import {
     Table,
     TableBody,
@@ -34,10 +9,21 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "@/components/ui/table"
-import React from "react";
-import AxiosInstance from "@/axios/AxiosInstance";
+} from "@/components/ui/table";
+import { useChest } from "@/context/ChestContext";
+import type { Chest } from "@/types/Chest";
 import type { Item } from "@/types/Item";
+import {
+    type ColumnDef,
+    flexRender,
+    getCoreRowModel,
+    getFilteredRowModel,
+    getSortedRowModel,
+    type SortingState,
+    useReactTable
+} from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 export const columns: ColumnDef<Item>[] = [
     {
@@ -146,8 +132,6 @@ export default function ChestDetail() {
                 `chest/item?serial=${serial}&set_number=${setNumber}`
             )).data;
 
-            console.log('Fetched items:', data);
-
             setItems(data.map((item: any) => ({
                 id: item.id,
                 chest: item.chest,
@@ -252,7 +236,7 @@ export default function ChestDetail() {
             </div>
             <Button
                 variant="outline"
-                className="w-full"
+                className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] max-w-sm"
                 onClick={() => {
                     console.log("Selected items:", table.getSelectedRowModel().rows);
                 }
