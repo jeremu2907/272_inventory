@@ -105,12 +105,12 @@ export const columns: ColumnDef<Item>[] = [
 ]
 
 export default function ChestDetail() {
-    const [chestState, setChestState] = useState<Chest | null>(null);
+    const { chest } = useChest();
+
+    const [chestState, setChestState] = useState<Chest | null>(chest || null);
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [rowSelection, setRowSelection] = React.useState({});
     const [items, setItems] = React.useState<Item[]>([]);
-
-    const { chest } = useChest();
 
     const table = useReactTable<Item>({
         data: items,

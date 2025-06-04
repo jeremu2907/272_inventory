@@ -15,7 +15,7 @@ export default function AppWrapper() {
     // TODO: Add number of chests in set to breadcrumb
 
     const fetchChestData = async () => {
-         if(!plt || !chestSerial || !chestSetNumber) {
+         if(!chestSerial || !chestSetNumber) {
             return;
         }
 
@@ -42,7 +42,7 @@ export default function AppWrapper() {
 
     useEffect(() => {
         fetchChestData();
-    }, [plt, chestSerial, chestSetNumber]);
+    }, [chestSerial, chestSetNumber]);
 
     useEffect(() => {
         if (chest) {
@@ -54,15 +54,15 @@ export default function AppWrapper() {
         <div className='pt-4'>
             <Breadcrumb>
                 <BreadcrumbList>
-                    {plt && <><BreadcrumbItem>
+                    {/* {plt && <><BreadcrumbItem>
                         <BreadcrumbLink href={`/${plt}`}>{plt}{pltSuffix(plt)}</BreadcrumbLink>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
-                    }
-                    {plt && chestSerial && <><BreadcrumbItem>
+                    } */}
+                    {chestSerial && <><BreadcrumbItem>
                         <BreadcrumbLink href={`/${plt}/${chestSerial}`}>{chestSerial}</BreadcrumbLink>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
                     }
-                    {plt && chestSerial && chestSetNumber && <><BreadcrumbItem>
+                    {chestSerial && chestSetNumber && <><BreadcrumbItem>
                         <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestSetNumber} of {setTotal}</strong></BreadcrumbLink>
                     </BreadcrumbItem></>}
                 </BreadcrumbList>

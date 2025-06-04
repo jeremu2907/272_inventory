@@ -6,7 +6,7 @@ import Arrow from '@/assets/arrow-right.svg';
 export default function ChestSearchResult({ chest }: { chest: Chest }) {
     return (
         <div className="align-items-start flex border-b border-border p-2 hover:bg-accent hover:text-accent-foreground mt-2">
-            <Link to={`accountability/${chest.plt}/${chest.serial}/${chest.setNumber}`} className="w-full">
+            <Link to={`accountability/${chest.serial}/${chest.setNumber}`} className="w-full">
                 <Button variant="ghost" className="p-0 w-full h-fit flex items-between">
                     <div className="text-left flex flex-col whitespace-normal">
                         <h1 className="text-base font-bold max-w-[70vw]">{chest.description}</h1>

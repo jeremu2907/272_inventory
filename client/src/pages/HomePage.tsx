@@ -1,17 +1,20 @@
 import AxiosInstance from "@/axios/AxiosInstance";
 import ChestSearchResult from "@/components/SearchResult/ChestSearchResult";
 import ItemSearchResult from "@/components/SearchResult/ItemSearchResult";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import type { Chest } from "@/types/Chest";
-import type { Item } from "@/types/Item";
-import { useState, useRef, useEffect } from "react";
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
-} from "@/components/ui/accordion"
+} from "@/components/ui/accordion";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useChest } from "@/context/ChestContext";
+import { pltSuffix } from "@/lib/utils";
+import type { Chest } from "@/types/Chest";
+import type { Item } from "@/types/Item";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router";
 
 export default function HomePage() {
     const [searchTerm, setSearchTerm] = useState("");
@@ -19,6 +22,43 @@ export default function HomePage() {
     const [chestResults, setChestResults] = useState<Chest[]>([]);
     const [initSearch, setInitSearch] = useState(false);
     const [searching, setSearching] = useState(false);
+    const [scannedChest, setScannedChest] = useState<Chest | null>(null);
+
+    const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
+    const { setChest } = useChest();
+
+    const isFromScan = searchParams.get("serial") !== null && searchParams.get("caseNumber") !== null;
+    let scannedSerial = null;
+    let scannedCaseNumber = null;
+    if (isFromScan) {
+        scannedSerial = searchParams.get("serial");
+        scannedCaseNumber = searchParams.get("caseNumber");
+
+        const data = (async () => {
+            return await AxiosInstance.get(
+                `chest/chest/single?serial=${scannedSerial}&set_number=${scannedCaseNumber}`
+            );
+        }
+        )();
+        data.then((response) => {
+            const chest: Chest = {
+                id: response.data.id,
+                plt: response.data.plt,
+                serial: response.data.serial,
+                nsn: response.data.nsn,
+                description: response.data.description,
+                setNumber: response.data.set_number,
+                setTotal: response.data.set_total
+            };
+            setScannedChest(chest);
+            setChest(chest);
+        }
+        ).catch((error) => {
+            console.error("Error fetching scanned chest data:", error);
+        }
+        );
+    }
 
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -73,6 +113,12 @@ export default function HomePage() {
         }
     }
 
+    const checkoutBtnOnClick = () => {
+        if (isFromScan) {
+            navigate(`accountability/${scannedSerial}/${scannedCaseNumber}`);
+        }
+    };
+
     useEffect(() => {
         if (debounceRef.current) {
             clearTimeout(debounceRef.current);
@@ -91,12 +137,33 @@ export default function HomePage() {
 
     return (
         <div className="p-4 flex flex-col gap-4">
+            {isFromScan && scannedChest &&
+                <>
+                    <h1 className="text-lg font-bold">Scanned the following item:</h1>
+                    <p className="text-lg font-medium text-muted-foreground text-center">{scannedChest.description}</p>
+                    <p className="text-sm text-muted-foreground text-center">{scannedChest.nsn}</p>
+
+                    <div className="flex items-center gap-4">
+                        <span className="font-semibold">Serial:</span>
+                        <span>{scannedChest.serial}</span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <span className="font-semibold">Case:</span>
+                        <span>{scannedChest.setNumber} of {scannedChest.setTotal}</span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <span className="font-semibold">Platoon:</span>
+                        <span>{scannedChest.plt}{pltSuffix(scannedChest.plt)}</span>
+                    </div>
+                </>
+            }
+
             <Button
                 variant="secondary"
                 className="w-full max-w-sm"
-                onClick={() => {
-                }
-                }
+                onClick={checkoutBtnOnClick}
             >
                 <span>Checkout Items</span>
             </Button>
@@ -109,6 +176,8 @@ export default function HomePage() {
             >
                 <span>Checkin Items</span>
             </Button>
+
+            <h1 className="text-lg font-bold mt-4">Search for Chests or Items</h1>
             <Input
                 value={searchTerm}
                 onChange={onChange}

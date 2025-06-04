@@ -17,7 +17,7 @@ function App() {
             </div>
             <Routes>
                 <Route path="accountability" element={<AppWrapper />}>
-                    <Route path=":plt/:chestSerial/:chestSetNumber" element={<CheckoutChestDetail />} />
+                    <Route path=":chestSerial/:chestSetNumber" element={<CheckoutChestDetail />} />
                 </Route>
                 <Route path="/" element={<HomePage />} />
                 <Route path="detail">
