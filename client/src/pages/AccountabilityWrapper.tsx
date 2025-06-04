@@ -8,20 +8,20 @@ import { useChest } from '@/context/ChestContext';
 import { pltSuffix } from '@/lib/utils';
 
 export default function AppWrapper() {
-    const { plt, chestSerial, chestSetNumber } = useParams();
+    const { plt, chestSerial, chestcaseNumber } = useParams();
     const { chest, setChest } = useChest();
-    const [ setTotal, setSetTotal] = useState<number | null>(null);
+    const [ caseTotal, setcaseTotal] = useState<number | null>(null);
 
     // TODO: Add number of chests in set to breadcrumb
 
     const fetchChestData = async () => {
-         if(!chestSerial || !chestSetNumber) {
+         if(!chestSerial || !chestcaseNumber) {
             return;
         }
 
         try{
             const data = (await AxiosInstance.get(
-                `chest/chest/single?serial=${chestSerial}&set_number=${chestSetNumber}`)
+                `chest/chest/single?serial=${chestSerial}&case_number=${chestcaseNumber}`)
             ).data;
 
             let chest: Chest;
@@ -31,8 +31,8 @@ export default function AppWrapper() {
                 serial: data.serial,
                 nsn: data.nsn,
                 description: data.description,
-                setNumber: data.set_number,
-                setTotal: data.set_total
+                caseNumber: data.case_number,
+                caseTotal: data.case_total
             };
             setChest(chest);
         } catch (error) {
@@ -42,11 +42,11 @@ export default function AppWrapper() {
 
     useEffect(() => {
         fetchChestData();
-    }, [chestSerial, chestSetNumber]);
+    }, [chestSerial, chestcaseNumber]);
 
     useEffect(() => {
         if (chest) {
-            setSetTotal(chest.setTotal);
+            setcaseTotal(chest.caseTotal);
         }
     }, [chest]);
 
@@ -62,8 +62,8 @@ export default function AppWrapper() {
                         <BreadcrumbLink href={`/${plt}/${chestSerial}`}>{chestSerial}</BreadcrumbLink>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
                     }
-                    {chestSerial && chestSetNumber && <><BreadcrumbItem>
-                        <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestSetNumber} of {setTotal}</strong></BreadcrumbLink>
+                    {chestSerial && chestcaseNumber && <><BreadcrumbItem>
+                        <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestcaseNumber} of {caseTotal}</strong></BreadcrumbLink>
                     </BreadcrumbItem></>}
                 </BreadcrumbList>
             </Breadcrumb>

@@ -23,11 +23,11 @@ def GetChestBySerialAndSetNum(request: HttpRequest):
                 return JsonResponse(chest, safe=False)
 
             serial = request.GET.get('serial')
-            set_number = request.GET.get('set_number')
-            if not serial or not set_number:
-                return JsonResponse({'error': 'Missing "serial" or "set_number" parameter'}, status=400)
+            case_number = request.GET.get('case_number')
+            if not serial or not case_number:
+                return JsonResponse({'error': 'Missing "serial" or "case_number" parameter'}, status=400)
 
-            chest = Chest.objects.filter(serial=serial, set_number=set_number).values().first()
+            chest = Chest.objects.filter(serial=serial, case_number=case_number).values().first()
             if not chest:
                 return JsonResponse({'error': 'Chest not found'}, status=404)
 
@@ -41,11 +41,11 @@ def ItemApi(request):
             chest_serial = request.GET.get('serial')
             if not chest_serial:
                 return JsonResponse({'error': 'Missing "serial" parameter'}, status=400)
-            chest_set_number = request.GET.get('set_number')
-            if not chest_set_number:
-                return JsonResponse({'error': 'Missing "set_number" parameter'}, status=400)
+            chest_case_number = request.GET.get('case_number')
+            if not chest_case_number:
+                return JsonResponse({'error': 'Missing "case_number" parameter'}, status=400)
             
-            chest = Chest.objects.filter(serial=chest_serial, set_number=chest_set_number).first()
+            chest = Chest.objects.filter(serial=chest_serial, case_number=chest_case_number).first()
             if not chest:
                 return JsonResponse({'error': 'Chest not found'}, status=404)
 

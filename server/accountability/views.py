@@ -8,15 +8,15 @@ def GetLogByChest(request: HttpRequest):
         return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
 
     serial = request.GET.get('serial')
-    set_number = request.GET.get('set_number')
+    case_number = request.GET.get('case_number')
 
     if not serial:
         return JsonResponse({'error': 'Missing "serial" parameter'}, status=400)
-    if not set_number:
-        return JsonResponse({'error': 'Missing "set_number" parameter'}, status=400)
+    if not case_number:
+        return JsonResponse({'error': 'Missing "case_number" parameter'}, status=400)
 
     try:
-        chest = Chest.objects.filter(serial=serial, set_number=set_number).values().first()
+        chest = Chest.objects.filter(serial=serial, case_number=case_number).values().first()
         if not chest:
             return JsonResponse({'error': 'Chest not found'}, status=404)
         

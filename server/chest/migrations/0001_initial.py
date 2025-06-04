@@ -20,11 +20,11 @@ class Migration(migrations.Migration):
                 ('serial', models.CharField(max_length=50)),
                 ('nsn', models.CharField(max_length=50)),
                 ('description', models.CharField(max_length=255)),
-                ('set_number', models.IntegerField(default=1)),
-                ('set_total', models.IntegerField(default=1)),
+                ('case_number', models.IntegerField(default=1)),
+                ('case_total', models.IntegerField(default=1)),
             ],
             options={
-                'unique_together': {('serial', 'set_number')},
+                'unique_together': {('serial', 'case_number')},
             },
         ),
         migrations.CreateModel(

@@ -126,10 +126,10 @@ export default function ChestDetail() {
         },
     })
 
-    const fetchItems = async (serial: string, setNumber: number) => {
+    const fetchItems = async (serial: string, caseNumber: number) => {
         try {
             const data = (await AxiosInstance.get(
-                `chest/item?serial=${serial}&set_number=${setNumber}`
+                `chest/item?serial=${serial}&case_number=${caseNumber}`
             )).data;
 
             setItems(data.map((item: any) => ({
@@ -150,7 +150,7 @@ export default function ChestDetail() {
     useEffect(() => {
         if (chest) {
             setChestState(chest);
-            fetchItems(chest.serial, chest.setNumber);
+            fetchItems(chest.serial, chest.caseNumber);
         }
     }, [chest]);
 

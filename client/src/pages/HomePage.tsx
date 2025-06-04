@@ -37,7 +37,7 @@ export default function HomePage() {
 
         const data = (async () => {
             return await AxiosInstance.get(
-                `chest/chest/single?serial=${scannedSerial}&set_number=${scannedCaseNumber}`
+                `chest/chest/single?serial=${scannedSerial}&case_number=${scannedCaseNumber}`
             );
         }
         )();
@@ -48,8 +48,8 @@ export default function HomePage() {
                 serial: response.data.serial,
                 nsn: response.data.nsn,
                 description: response.data.description,
-                setNumber: response.data.set_number,
-                setTotal: response.data.set_total
+                caseNumber: response.data.case_number,
+                caseTotal: response.data.case_total
             };
             setScannedChest(chest);
             setChest(chest);
@@ -81,8 +81,8 @@ export default function HomePage() {
                     serial: element.serial,
                     nsn: element.nsn,
                     description: element.description,
-                    setNumber: element.set_number,
-                    setTotal: element.set_total
+                    caseNumber: element.case_number,
+                    caseTotal: element.case_total
                 } as Chest;
             }) || []);
             setItemResults(data.items.map((element: any) => {
@@ -139,7 +139,7 @@ export default function HomePage() {
         <div className="p-4 flex flex-col gap-4">
             {isFromScan && scannedChest &&
                 <>
-                    <h1 className="text-lg font-bold">Scanned the following item:</h1>
+                    <h1 className="text-lg font-bold">Scanned the following chest:</h1>
                     <p className="text-lg font-medium text-muted-foreground text-center">{scannedChest.description}</p>
                     <p className="text-sm text-muted-foreground text-center">{scannedChest.nsn}</p>
 
@@ -150,34 +150,33 @@ export default function HomePage() {
 
                     <div className="flex items-center gap-4">
                         <span className="font-semibold">Case:</span>
-                        <span>{scannedChest.setNumber} of {scannedChest.setTotal}</span>
+                        <span>{scannedChest.caseNumber} of {scannedChest.caseTotal}</span>
                     </div>
 
                     <div className="flex items-center gap-4">
                         <span className="font-semibold">Platoon:</span>
                         <span>{scannedChest.plt}{pltSuffix(scannedChest.plt)}</span>
                     </div>
+                    <Button
+                        variant="secondary"
+                        className="w-full max-w-sm"
+                        onClick={checkoutBtnOnClick}
+                    >
+                        <span>Checkout Items</span>
+                    </Button>
+                    <Button
+                        variant="secondary"
+                        className="w-full max-w-sm"
+                        onClick={() => {
+                        }
+                        }
+                    >
+                        <span>Checkin Items</span>
+                    </Button>
                 </>
             }
 
-            <Button
-                variant="secondary"
-                className="w-full max-w-sm"
-                onClick={checkoutBtnOnClick}
-            >
-                <span>Checkout Items</span>
-            </Button>
-            <Button
-                variant="secondary"
-                className="w-full max-w-sm"
-                onClick={() => {
-                }
-                }
-            >
-                <span>Checkin Items</span>
-            </Button>
-
-            <h1 className="text-lg font-bold mt-4">Search for Chests or Items</h1>
+            <h1 className="text-lg font-bold mt-4">Inventory Finder</h1>
             <Input
                 value={searchTerm}
                 onChange={onChange}

@@ -4,6 +4,6 @@ export type Chest = {
     serial: string;
     nsn: string;
     description: string;
-    setNumber: number;
-    setTotal: number;
+    caseNumber: number;
+    caseTotal: number;
 };

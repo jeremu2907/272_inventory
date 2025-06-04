@@ -21,8 +21,8 @@ export default function ItemDetail() {
                     serial: data.serial,
                     nsn: data.nsn,
                     description: data.description,
-                    setNumber: data.set_number,
-                    setTotal: data.set_total
+                    caseNumber: data.case_number,
+                    caseTotal: data.case_total
                 });
             } catch (error) {
                 console.error("Error fetching chest data:", error);
@@ -61,7 +61,7 @@ export default function ItemDetail() {
 
                     <div className="flex items-center gap-4">
                         <span className="font-semibold">Case:</span>
-                        <span>{chest.setNumber} of {chest.setTotal}</span>
+                        <span>{chest.caseNumber} of {chest.caseTotal}</span>
                     </div>
 
                     <div className="flex items-center gap-4">

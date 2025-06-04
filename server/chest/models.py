@@ -7,16 +7,16 @@ class Chest(models.Model):
     serial = models.CharField(max_length=50, blank=False, null=False)
     nsn = models.CharField(max_length=50, blank=False, null=False)
     description = models.CharField(max_length=255)
-    set_number = models.IntegerField(default=1)
-    set_total = models.IntegerField(default=1)
+    case_number = models.IntegerField(default=1)
+    case_total = models.IntegerField(default=1)
     
     class Meta:
-        unique_together = ('serial', 'set_number')
+        unique_together = ('serial', 'case_number')
         
     def clean(self):
-        if self.set_number > self.set_total:
+        if self.case_number > self.case_total:
             raise ValidationError({
-                'set_number': 'Set number cannot be greater than set total.'
+                'case_number': 'Set number cannot be greater than set total.'
             })
     
 class Item(models.Model):
