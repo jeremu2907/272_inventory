@@ -24,6 +24,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 export const columns: ColumnDef<Item>[] = [
     {
@@ -36,6 +37,7 @@ export const columns: ColumnDef<Item>[] = [
                 }
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
+                className="h-6 w-6"
             />
         ),
         cell: ({ row }) => (
@@ -43,6 +45,7 @@ export const columns: ColumnDef<Item>[] = [
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
                 aria-label="Select row"
+                className="h-6 w-6"
             />
         ),
         enableSorting: false,
@@ -73,15 +76,17 @@ export const columns: ColumnDef<Item>[] = [
             const item = row.original as Item;
             return (
                 <>
-                    <div className='flex-2 whitespace-normal text-base font-bold'>
-                        {item.name}
-                    </div>
-                    <div className='flex-2 whitespace-normal text-sm font-medium'>
-                        {item.nameExt}
-                    </div>
-                    {item.nsn && <div className='flex-2 whitespace-normal text-sm text-muted-foreground '>
-                        {item.nsn}
-                    </div>}
+                    <Link to={`/detail/item/${item.id}`} state={item} className="w-full">
+                        <div className='flex-2 whitespace-normal text-base font-bold underline'>
+                            {item.name}
+                        </div>
+                    </Link>
+                        <div className='flex-2 whitespace-normal text-sm font-medium'>
+                            {item.nameExt}
+                        </div>
+                        {item.nsn && <div className='flex-2 whitespace-normal text-sm text-muted-foreground '>
+                            {item.nsn}
+                        </div>}
                 </>
             );
         }
@@ -134,7 +139,7 @@ export default function ChestDetail() {
 
             setItems(data.map((item: any) => ({
                 id: item.id,
-                chest: item.chest,
+                chest: item.chest_id,
                 layer: item.layer,
                 name: item.name,
                 nameExt: item.name_ext,
@@ -177,73 +182,64 @@ export default function ChestDetail() {
                         className="max-w-sm"
                     />
                 </div>
-                <div className="relative rounded-md border overflow-y-auto h-auto max-h-[50vh]">
-                    <Table>
-                        <TableHeader className="bg-white sticky top-0 z-10">
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <TableRow key={headerGroup.id}>
-                                    {headerGroup.headers.map((header) => {
-                                        return (
-                                            <TableHead key={header.id}>
-                                                {header.isPlaceholder
-                                                    ? null
-                                                    : flexRender(
-                                                        header.column.columnDef.header,
-                                                        header.getContext()
-                                                    )}
-                                            </TableHead>
-                                        )
-                                    })}
+                {/* <div className="relative rounded-md border max-h-[50vh]"> */}
+                <Table>
+                    <TableHeader className="sticky top-0 z-10 bg-background">
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableHeader>
+                    <TableBody>
+                        {table.getRowModel().rows?.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && "selected"}
+                                >
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id}>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
                                 </TableRow>
-                            ))}
-                        </TableHeader>
-                        <TableBody>
-                            {table.getRowModel().rows?.length ? (
-                                table.getRowModel().rows.map((row) => (
-                                    <TableRow
-                                        key={row.id}
-                                        data-state={row.getIsSelected() && "selected"}
-                                    >
-                                        {row.getVisibleCells().map((cell) => (
-                                            <TableCell key={cell.id}>
-                                                {flexRender(
-                                                    cell.column.columnDef.cell,
-                                                    cell.getContext()
-                                                )}
-                                            </TableCell>
-                                        ))}
-                                    </TableRow>
-                                ))
-                            ) : (
-                                <TableRow>
-                                    <TableCell
-                                        colSpan={columns.length}
-                                        className="h-24 text-center"
-                                    >
-                                        No results.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                <div className="flex items-center justify-end space-x-2 pt-4">
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+                {/* </div> */}
+            </div>
+            <div className="sticky bottom-4 bg-background py-2 flex flex-col items-center">
+                {/* <div className="flex items-center justify-end space-x-2">
                     <div className="text-muted-foreground flex-1 text-sm">
                         {table.getFilteredSelectedRowModel().rows.length} of{" "}
                         {table.getFilteredRowModel().rows.length} row(s) selected.
                     </div>
-                </div>
+                </div> */}
+                <Button
+                    variant="outline"
+                    className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] max-w-sm"
+                    onClick={() => {
+                        console.log("Selected items:", table.getSelectedRowModel().rows);
+                    }
+                    }
+                >
+                    <span>Checkout {table.getSelectedRowModel().rows.length} Items</span>
+                </Button>
             </div>
-            <Button
-                variant="outline"
-                className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] max-w-sm"
-                onClick={() => {
-                    console.log("Selected items:", table.getSelectedRowModel().rows);
-                }
-                }
-            >
-                <span>Checkout {table.getSelectedRowModel().rows.length} Items</span>
-            </Button>
         </div>
     );
 }

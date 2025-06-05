@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { Link, useLocation } from "react-router";
 import AxiosInstance from "@/axios/AxiosInstance";
 import type { Chest } from "@/types/Chest";
 import type { Item } from "@/types/Item";
@@ -51,7 +51,9 @@ export default function ItemDetail() {
             {chest ? (
                 <>
                     <h1 className="mt-4 font-semibold">Found in the following Chest:</h1>
-                    <p className="text-lg font-medium text-muted-foreground text-center">{chest.description}</p>
+                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full">
+                        <p className="text-lg font-medium text-muted-foreground text-center underline">{chest.description}</p>
+                    </Link>
                     <p className="text-sm text-muted-foreground text-center">{chest.nsn}</p>
 
                     <div className="flex items-center gap-4">

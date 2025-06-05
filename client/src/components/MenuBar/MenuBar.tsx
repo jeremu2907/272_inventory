@@ -111,18 +111,18 @@ export default function MenuBar() {
     }, [])
 
     return (
-        <div className="bg-background h-[50px] absolute top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-md">
+        <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-90">
             <Link to="/" className='flex items-center gap-2'>
                 <img src={Home} alt="Home" height={30} width={30} />
             </Link>
             {loggedIn && user ? (
                 <Popover>
                     <PopoverTrigger>
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-sm text-muted-foreground underline cursor-pointer">
                             {user.firstName} {user.lastName} ({user.rank})
                         </p>
                     </PopoverTrigger>
-                    <PopoverContent className="w-fit">
+                    <PopoverContent className="w-fit z-101">
                         <Button variant="secondary" className='w-fit text-[red]' onClick={onSignOut} autoFocus={false}>
                             Sign out
                         </Button>
