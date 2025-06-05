@@ -1,7 +1,8 @@
 import axios from 'axios';
+import { ENDPOINT } from './Endpoint';
 
 const api = axios.create({
-    baseURL: 'http://172.20.10.14:8000/',
+    baseURL: ENDPOINT,
     // Optional defaults:
     // headers: { 'Authorization': 'Bearer token' },
     // timeout: 5000,

@@ -2,6 +2,9 @@ from django.http import JsonResponse, HttpRequest
 from chest.models import Chest, Item
 from .models import AccountRecord
 from django.utils.timezone import now
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 def GetLogByChest(request: HttpRequest):
     if request.method != 'GET':
@@ -55,15 +58,15 @@ def GetLogByLastName(request: HttpRequest):
 
     try:
         log_by_first_name = AccountRecord.objects\
-            .filter(last_name__icontains=last_name)\
-            .order_by('first_name', '-created_at')\
+            .filter(user__last_name__icontains=last_name)\
+            .order_by('user__first_name', '-created_at')\
             .values()\
             [:100]
         
         records = []
         
         for record in log_by_first_name:
-            first_name = record.get('first_name')
+            first_name = record.get('user__first_name')
             group = next((obj for obj in records if obj['first_name'] == first_name), None)
     
             if group is None:
@@ -81,6 +84,9 @@ def GetLogByLastName(request: HttpRequest):
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
     
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
 def Checkout(request: HttpRequest):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -90,13 +96,8 @@ def Checkout(request: HttpRequest):
         chest_id = data.get('chest_id')
         item_id = data.get('item_id')
         validate = (chest_id is not None) ^ (item_id is not None)
-        rank = data.get('rank', 'NONE')
-        first_name = data.get('first_name', '').strip().upper()
-        last_name = data.get('last_name').strip().upper()
+        user = request.user
         action = True
-
-        if not last_name or not rank:
-            return JsonResponse({'error': 'Missing required parameters'}, status=400)
         
         if not validate:
             return JsonResponse({'error': 'Must specify either chest_id or item_id, but not both'}, status=400)
@@ -122,11 +123,9 @@ def Checkout(request: HttpRequest):
             item.save()
 
         record = AccountRecord(
+            user=user,
             chest=chest,
             item=item,
-            rank=rank,
-            first_name=first_name,
-            last_name=last_name,
             qty=qty,
             action=action)
         record.save()

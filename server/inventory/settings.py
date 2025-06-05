@@ -26,7 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-dy2$!=%xljhjvq8-ktp!%i(uam0cx$7bqsgmr1f&1%@ukq&2=h'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True if os.getenv('DEBUG', 'True').lower() in ['true', '1'] else False
 if not DEBUG:
     # Tell Django to copy static assets into a path called `staticfiles` (this is specific to Render)
     STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -48,9 +48,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
     
     'chest.apps.ChestConfig',
     'accountability.apps.AccountabilityConfig',
+    'user.apps.UserConfig',
 ]
 
 ALLOWED_HOSTS = ['*']
@@ -92,6 +95,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'inventory.wsgi.application'
 
+AUTH_USER_MODEL = 'user.CustomUser'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
@@ -114,18 +118,18 @@ DATABASES = {
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': os.getenv('ENGINE'),
-    },
-    {
-        'NAME': os.getenv('ENGINE'),
-    },
-    {
-        'NAME': os.getenv('ENGINE'),
-    },
-    {
-        'NAME': os.getenv('ENGINE'),
-    },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    # },
+    # {
+    #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    # },
 ]
 
 
@@ -151,3 +155,23 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from datetime import timedelta # import this library top of the settings.py file
+
+# put on your settings.py file below INSTALLED_APPS
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=360),
+    'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME': timedelta(days=30),
+    'SLIDING_TOKEN_REFRESH_LIFETIME_LATE_USER': timedelta(days=1),
+    'SLIDING_TOKEN_LIFETIME_LATE_USER': timedelta(days=30),
+}
