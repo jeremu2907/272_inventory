@@ -28,6 +28,8 @@ import { Link } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import { toast } from "react-toastify";
+import type { AxiosError } from "axios";
+import { useProfileDialog } from "@/context/ProfileDialogContext";
 
 export const columns: ColumnDef<Item>[] = [
     {
@@ -78,25 +80,25 @@ export const columns: ColumnDef<Item>[] = [
         cell: ({ row }) => {
             const item = row.original as Item;
             return (
-                <>
-                    <Link to={`/detail/item/${item.id}`} state={item} className="w-full">
-                        <div className='flex-2 whitespace-normal text-base font-bold underline'>
+                <div className='whitespace-normal truncate max-w-[37vw]'>
+                    <Link to={`/detail/item/${item.id}`} state={item}>
+                        <div className='text-base font-bold underline'>
                             {item.name}
                         </div>
                     </Link>
-                    <div className='flex-2 whitespace-normal text-sm font-medium'>
+                    <div className='break-all text-sm font-medium'>
                         {item.nameExt}
                     </div>
-                    {item.nsn && <div className='flex-2 whitespace-normal text-sm text-muted-foreground '>
+                    {item.nsn && <div className='break-all text-sm text-muted-foreground '>
                         {item.nsn}
                     </div>}
-                </>
+                </div>
             );
         }
     },
     {
         accessorKey: "qtyTotal",
-        header: () => <div className="text-right">Assigned</div>,
+        header: () => <div className="text-center">Assigned</div>,
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue("qtyTotal"))
             return <div className="flex-1 text-center font-medium">{amount}</div>
@@ -104,7 +106,7 @@ export const columns: ColumnDef<Item>[] = [
     },
     {
         accessorKey: "qtyReal",
-        header: () => <div className="text-right">On-hand</div>,
+        header: () => <div className="text-center">On-hand</div>,
         cell: ({ row }) => {
             const amount = parseFloat(row.getValue("qtyReal"))
             return <div className="flex-1 text-center font-medium">{amount}</div>
@@ -114,6 +116,7 @@ export const columns: ColumnDef<Item>[] = [
 
 export default function ChestDetail() {
     const { chest } = useChest();
+    const { setOpenDialog } = useProfileDialog();
 
     const [chestState, setChestState] = useState<Chest | null>(chest || null);
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -173,18 +176,24 @@ export default function ChestDetail() {
         }));
 
         try {
-            await AxiosAuthInstance().post("accountability/checkout", {item_list: order});
+            await AxiosAuthInstance().post("accountability/checkout", { item_list: order });
             toast.success("Checkout successful!");
             setDialogOpen(false);
-        } catch (error) {
+        } catch (error: AxiosError | any) {
+            if(error.response && error.response.status === 401) {
+                toast.info("You need to login first.");
+                setOpenDialog(true);
+                return;
+            }
             console.error("Error during checkout:", error);
             toast.error("Checkout failed. Please try again.");
             return;
+        } finally {
+            if (chest) {
+                fetchItems(chest.serial, chest.caseNumber);
+            }
+            setInProgress(false);
         }
-        if (chest) {
-            fetchItems(chest.serial, chest.caseNumber);
-        }
-        setInProgress(false);
     }
 
     useEffect(() => {
@@ -205,7 +214,10 @@ export default function ChestDetail() {
 
     return (
         <div className='flex flex-col gap-4 align-start text-left'>
-            <h1 className='text-lg font-bold'>{chestState?.description}</h1>
+            <div>
+                <h1 className='text-lg font-bold'>{chestState?.description}</h1>
+                <p className="text-sm text-muted-foreground">{chestState?.nsn}</p>
+            </div>
             <div className="w-full">
                 <div className="flex items-center pb-4 gap-1">
                     <Input
@@ -217,7 +229,7 @@ export default function ChestDetail() {
                         className="max-w-sm"
                     />
                 </div>
-                <Table>
+                <Table className="w-full">
                     <TableHeader className="sticky top-0 z-10 bg-background">
                         {table.getHeaderGroups().map((headerGroup) => (
                             <TableRow key={headerGroup.id}>
@@ -256,7 +268,7 @@ export default function ChestDetail() {
                 </Table>
             </div>
 
-            <Button
+            {table.getSelectedRowModel().rows.length > 0 && <Button
                 variant="outline"
                 className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] sticky bottom-4"
                 onClick={() => {
@@ -269,7 +281,7 @@ export default function ChestDetail() {
                 }
             >
                 <span>Checkout {table.getSelectedRowModel().rows.length} Items</span>
-            </Button>
+            </Button>}
 
             <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogContent className="w-[90vw] max-w-[600px] z-102">
@@ -296,7 +308,7 @@ export default function ChestDetail() {
                             })}
                         </div>
                         <Button type="submit" className="w-full">
-                            {inProgress? <span>Checking out...</span> : <span>Confirm checkout</span>}
+                            {inProgress ? <span>Checking out...</span> : <span>Confirm checkout</span>}
                         </Button>
                     </form>
                 </DialogContent>

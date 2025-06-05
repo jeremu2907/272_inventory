@@ -13,13 +13,14 @@ import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import { useUser } from "@/context/UserContext";
 import type { User } from "@/types/User";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { useProfileDialog } from "@/context/ProfileDialogContext";
 
 export default function MenuBar() {
     const { user, setUser } = useUser();
+    const { openDialog, setOpenDialog } = useProfileDialog();
 
     const [lastName, setLastName] = useState("");
     const [last4, setLast4] = useState("");
-    const [open, setOpen] = useState(false);
     const [loggedIn, setLoggedIn] = useState(false);
 
     const onChangeLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,7 +76,7 @@ export default function MenuBar() {
 
             setLastName("");
             setLast4("");
-            setOpen(false);
+            setOpenDialog(false);
         } catch (error) {
             console.error("Login failed:", error);
             // Handle error (e.g., show a toast notification)
@@ -129,8 +130,8 @@ export default function MenuBar() {
                     </PopoverContent>
                 </Popover>
             ) : (
-                <Dialog open={open} onOpenChange={setOpen}>
-                    <DialogContent className="w-[90vw] max-w-[600px]">
+                <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+                    <DialogContent className="w-[90vw] max-w-[600px] z-103">
                         <form onSubmit={onSubmit}>
                             <DialogHeader>
                                 <DialogTitle>Login to your profile</DialogTitle>

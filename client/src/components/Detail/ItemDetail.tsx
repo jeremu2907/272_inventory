@@ -4,6 +4,7 @@ import AxiosInstance from "@/axios/AxiosInstance";
 import type { Chest } from "@/types/Chest";
 import type { Item } from "@/types/Item";
 import { pltSuffix } from "@/lib/utils";
+import { Button } from "../ui/button";
 
 export default function ItemDetail() {
     const location = useLocation();
@@ -70,6 +71,11 @@ export default function ItemDetail() {
                         <span className="font-semibold">Platoon:</span>
                         <span>{chest.plt}{pltSuffix(chest.plt)}</span>
                     </div>
+                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full">
+                        <Button variant="secondary" className="w-full max-w-sm">
+                            <span>View Chest</span>
+                        </Button>
+                    </Link>
                 </>
             ) : (
                 <p className="text-muted-foreground">Loading chest information...</p>
