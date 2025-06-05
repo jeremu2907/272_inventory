@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react';
 import AxiosInstance from '@/axios/AxiosInstance';
 import type { Chest } from '@/types/Chest';
 import { useChest } from '@/context/ChestContext';
-import { pltSuffix } from '@/lib/utils';
 
 export default function AppWrapper() {
     const { plt, chestSerial, chestcaseNumber } = useParams();

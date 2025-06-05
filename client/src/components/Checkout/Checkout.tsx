@@ -25,6 +25,9 @@ import {
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
+import { toast } from "react-toastify";
 
 export const columns: ColumnDef<Item>[] = [
     {
@@ -81,12 +84,12 @@ export const columns: ColumnDef<Item>[] = [
                             {item.name}
                         </div>
                     </Link>
-                        <div className='flex-2 whitespace-normal text-sm font-medium'>
-                            {item.nameExt}
-                        </div>
-                        {item.nsn && <div className='flex-2 whitespace-normal text-sm text-muted-foreground '>
-                            {item.nsn}
-                        </div>}
+                    <div className='flex-2 whitespace-normal text-sm font-medium'>
+                        {item.nameExt}
+                    </div>
+                    {item.nsn && <div className='flex-2 whitespace-normal text-sm text-muted-foreground '>
+                        {item.nsn}
+                    </div>}
                 </>
             );
         }
@@ -116,6 +119,8 @@ export default function ChestDetail() {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [rowSelection, setRowSelection] = React.useState({});
     const [items, setItems] = React.useState<Item[]>([]);
+    const [dialogOpen, setDialogOpen] = React.useState(false);
+    const [inProgress, setInProgress] = React.useState(false);
 
     const table = useReactTable<Item>({
         data: items,
@@ -133,9 +138,11 @@ export default function ChestDetail() {
 
     const fetchItems = async (serial: string, caseNumber: number) => {
         try {
-            const data = (await AxiosInstance.get(
+            const response = await AxiosInstance.get(
                 `chest/item?serial=${serial}&case_number=${caseNumber}`
-            )).data;
+            )
+
+            const data = response.data;
 
             setItems(data.map((item: any) => ({
                 id: item.id,
@@ -150,6 +157,34 @@ export default function ChestDetail() {
         } catch (error) {
             console.error('Error fetching items:', error);
         }
+    }
+
+    const submitCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
+        setInProgress(true);
+        e.preventDefault(); // prevent default page reload
+
+        const formData = new FormData(e.currentTarget);
+
+        const entries = Array.from(formData.entries());
+
+        const order = entries.map(([key, value]) => ({
+            item_id: key.replace("quantity-", ""),
+            qty: Number(value),
+        }));
+
+        try {
+            await AxiosAuthInstance().post("accountability/checkout", {item_list: order});
+            toast.success("Checkout successful!");
+            setDialogOpen(false);
+        } catch (error) {
+            console.error("Error during checkout:", error);
+            toast.error("Checkout failed. Please try again.");
+            return;
+        }
+        if (chest) {
+            fetchItems(chest.serial, chest.caseNumber);
+        }
+        setInProgress(false);
     }
 
     useEffect(() => {
@@ -182,7 +217,6 @@ export default function ChestDetail() {
                         className="max-w-sm"
                     />
                 </div>
-                {/* <div className="relative rounded-md border max-h-[50vh]"> */}
                 <Table>
                     <TableHeader className="sticky top-0 z-10 bg-background">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -220,26 +254,53 @@ export default function ChestDetail() {
                         )}
                     </TableBody>
                 </Table>
-                {/* </div> */}
             </div>
-            <div className="sticky bottom-4 bg-background py-2 flex flex-col items-center">
-                {/* <div className="flex items-center justify-end space-x-2">
-                    <div className="text-muted-foreground flex-1 text-sm">
-                        {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                        {table.getFilteredRowModel().rows.length} row(s) selected.
-                    </div>
-                </div> */}
-                <Button
-                    variant="outline"
-                    className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] max-w-sm"
-                    onClick={() => {
-                        console.log("Selected items:", table.getSelectedRowModel().rows);
+
+            <Button
+                variant="outline"
+                className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] sticky bottom-4"
+                onClick={() => {
+                    if (table.getSelectedRowModel().rows.length === 0) {
+                        return;
                     }
-                    }
-                >
-                    <span>Checkout {table.getSelectedRowModel().rows.length} Items</span>
-                </Button>
-            </div>
+                    console.log("Selected items:", table.getSelectedRowModel().rows.map(row => row.original));
+                    setDialogOpen(true);
+                }
+                }
+            >
+                <span>Checkout {table.getSelectedRowModel().rows.length} Items</span>
+            </Button>
+
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                <DialogContent className="w-[90vw] max-w-[600px] z-102">
+                    <DialogHeader>
+                        <DialogTitle>Checkout Items</DialogTitle>
+                        <DialogDescription>
+                            Please confirm the items and amount you want to checkout.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={submitCheckout}>
+                        <div className="flex flex-col gap-4 my-4 max-h-[50vh] overflow-y-auto">
+                            {table.getSelectedRowModel().rows.filter(row => row.original.qtyReal > 0).map((row) => {
+                                const item = row.original as Item;
+                                return (
+                                    <div key={item.id} className="flex items-center justify-between">
+                                        <span>
+                                            <p className="whitespace-normal text-base font-bold">{item.name}</p>
+                                            <p className="whitespace-normal text-sm text-muted-foreground">{item.nameExt}</p>
+                                            <p className="whitespace-normal text-sm text-muted-foreground">on-hand: {item.qtyReal}</p>
+                                        </span>
+                                        <Input type="number" className="w-15 text-right" defaultValue={1} min={1} max={item.qtyReal} name={`quantity-${item.id}`} />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                        <Button type="submit" className="w-full">
+                            {inProgress? <span>Checking out...</span> : <span>Confirm checkout</span>}
+                        </Button>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

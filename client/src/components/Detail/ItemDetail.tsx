@@ -14,7 +14,7 @@ export default function ItemDetail() {
     useEffect(() => {
         const fetchChest = async () => {
             try {
-                const { data } = await AxiosInstance.get(`chest/chest/single/?id=${item.chest}`);
+                const { data } = await AxiosInstance.get(`chest/chest/single?id=${item.chest}`);
                 setChest({
                     id: data.id,
                     plt: data.plt,

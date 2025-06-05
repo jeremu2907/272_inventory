@@ -92,43 +92,49 @@ def Checkout(request: HttpRequest):
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
     try:
-        data = request.POST
+        data = request.data
         chest_id = data.get('chest_id')
-        item_id = data.get('item_id')
-        validate = (chest_id is not None) ^ (item_id is not None)
+        item_list = data.get('item_list')
+
+        validate = (chest_id is not None) ^ (item_list is not None)
         user = request.user
         action = True
         
         if not validate:
-            return JsonResponse({'error': 'Must specify either chest_id or item_id, but not both'}, status=400)
-
-        qty = 1
-        chest: Chest = None
-        item: Item = None
+            return JsonResponse({'error': 'Must specify either chest_id or item_list, but not both'}, status=400)
         
         if chest_id:
             chest = Chest.objects.filter(id=chest_id).first()
             if not chest:
                 return JsonResponse({'error': 'Chest not found'}, status=404)
-        elif item_id:
-            qty = int(data.get('qty')) or qty
-            if qty < 1:
-                return JsonResponse({'error': 'Quantity must be at least 1'}, status=400)
-            item = Item.objects.filter(id=item_id).first()
-            if not item:
-                return JsonResponse({'error': 'Item not found in the specified chest'}, status=404)
-            item.qty_real -= qty
-            if item.qty_real < 0:
-                return JsonResponse({'error': 'Insufficient on-hand quantity'}, status=400)
-            item.save()
+        elif item_list:
+            for entry in item_list:
+                item_id = entry.get('item_id')
+                qty = entry.get('qty', 1)
 
-        record = AccountRecord(
-            user=user,
-            chest=chest,
-            item=item,
-            qty=qty,
-            action=action)
-        record.save()
+                if not item_id:
+                    return JsonResponse({'error': 'Each item must include item_id'}, status=400)
+
+                if qty < 1:
+                    return JsonResponse({'error': f'Invalid quantity ({qty}) for item {item_id}'}, status=400)
+
+                item = Item.objects.filter(id=item_id).first()
+                if not item:
+                    return JsonResponse({'error': f'Item with ID {item_id} not found'}, status=404)
+
+                if item.qty_real < qty:
+                    return JsonResponse({'error': f'Insufficient quantity for item {item.name}'}, status=400)
+
+                item.qty_real -= qty
+                item.save()
+
+                AccountRecord.objects.create(
+                    user=user,
+                    chest=None,
+                    item=item,
+                    qty=qty,
+                    action=action
+                )
 
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:

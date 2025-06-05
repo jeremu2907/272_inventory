@@ -41,7 +41,7 @@ export default function MenuBar() {
 
     const getUserProfile = async () => {
         try {
-            const responseUser = await AxiosAuthInstance(accessTokenGet()).get('user/info/');
+            const responseUser = await AxiosAuthInstance().get('user/info');
             const userData = responseUser.data;
             const user: User = {
                 id: userData.id,
@@ -111,7 +111,7 @@ export default function MenuBar() {
     }, [])
 
     return (
-        <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-90">
+        <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-49">
             <Link to="/" className='flex items-center gap-2'>
                 <img src={Home} alt="Home" height={30} width={30} />
             </Link>

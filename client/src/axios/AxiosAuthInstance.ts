@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { ENDPOINT } from './Endpoint';
+import { accessTokenGet } from '@/lib/utils';
 
-export function AxiosAuthInstance(authToken: string) {
+export function AxiosAuthInstance() {
     return axios.create({
         baseURL: ENDPOINT,
         headers: {
-            Authorization: `Bearer ${authToken}`,
+            Authorization: `Bearer ${accessTokenGet()}`,
         },
         // Optional defaults:
         // timeout: 5000,
