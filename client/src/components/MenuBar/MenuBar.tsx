@@ -1,19 +1,19 @@
 import Home from "@/assets/home.svg";
 import UserIcon from '@/assets/user.svg';
+import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
+import AxiosInstance from "@/axios/AxiosInstance";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useProfileDialog } from "@/context/ProfileDialogContext";
+import { useUser } from "@/context/UserContext";
+import { accessTokenSet, refreshTokenSet } from "@/lib/utils";
+import type { User } from "@/types/User";
 import { Label } from "@radix-ui/react-label";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { toast } from "react-toastify";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useEffect, useState } from "react";
-import AxiosInstance from "@/axios/AxiosInstance";
-import { toast } from "react-toastify";
-import { accessTokenGet, accessTokenSet, refreshTokenSet } from "@/lib/utils";
-import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
-import { useUser } from "@/context/UserContext";
-import type { User } from "@/types/User";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import { useProfileDialog } from "@/context/ProfileDialogContext";
 
 export default function MenuBar() {
     const { user, setUser } = useUser();
@@ -22,6 +22,7 @@ export default function MenuBar() {
     const [lastName, setLastName] = useState("");
     const [last4, setLast4] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     const onChangeLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLastName(e.target.value);
@@ -60,6 +61,7 @@ export default function MenuBar() {
     };
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setSubmitting(true);
         e.preventDefault();
         try {
             const response = await AxiosInstance.post("api/token/", {
@@ -81,6 +83,8 @@ export default function MenuBar() {
             console.error("Login failed:", error);
             // Handle error (e.g., show a toast notification)
             toast.error("Login failed. Please check your last name and last 4 digits.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -123,15 +127,23 @@ export default function MenuBar() {
                             {user.firstName} {user.lastName} ({user.rank})
                         </p>
                     </PopoverTrigger>
-                    <PopoverContent className="w-fit z-101">
-                        <Button variant="secondary" className='w-fit text-[red]' onClick={onSignOut} autoFocus={false}>
+                    <PopoverContent className="w-[50vw] max-w-[200px] z-101 flex flex-col justify-evenly items-center gap-4">
+                        <Link to="/user/checkin" className="w-full">
+                            <Button variant="default" className="w-full" autoFocus={false}>
+                                Checked out items
+                            </Button>
+                        </Link>
+                        <Button variant="destructive" className='w-full text-[white]' onClick={onSignOut} autoFocus={false}>
                             Sign out
                         </Button>
                     </PopoverContent>
                 </Popover>
             ) : (
                 <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-                    <DialogContent className="w-[90vw] max-w-[600px] z-103">
+                    <DialogContent
+                        className="w-[90vw] max-w-[600px] z-103"
+                        onOpenAutoFocus={(e) => e.preventDefault()}
+                    >
                         <form onSubmit={onSubmit}>
                             <DialogHeader>
                                 <DialogTitle>Login to your profile</DialogTitle>
@@ -169,8 +181,8 @@ export default function MenuBar() {
                             </div>
 
                             <DialogFooter className="flex-col gap-2">
-                                <Button type="submit" className="w-full">
-                                    Login
+                                <Button type="submit" className="w-full" disabled={submitting}>
+                                    {submitting ? <span>Logging in...</span> : <span>Log in</span>}
                                 </Button>
                             </DialogFooter>
                         </form>

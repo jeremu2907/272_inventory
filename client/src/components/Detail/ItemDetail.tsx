@@ -30,6 +30,8 @@ export default function ItemDetail() {
             }
         };
 
+        
+
         fetchChest();
     }, [item.chest]);
 

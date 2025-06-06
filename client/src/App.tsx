@@ -9,13 +9,14 @@ import AppWrapper from './pages/AccountabilityWrapper'
 import HomePage from './pages/HomePage'
 import { ToastContainer } from 'react-toastify';
 import { ProfileDialogProvider } from './context/ProfileDialogContext'
+import UserCheckinItemPage from './pages/UserCheckinItemPage'
 
 function App() {
     return (
         <ProfileDialogProvider>
             <UserProvider>
                 <ChestProvider>
-                    <ToastContainer position='top-center' autoClose={1000} className={'w-full'}/>
+                    <ToastContainer position='top-center' autoClose={2000} className={'w-full'}/>
                     <MenuBar />
                     <Routes>
                         <Route path="accountability" element={<AppWrapper />}>
@@ -25,6 +26,7 @@ function App() {
                         <Route path="detail">
                             <Route path="item/:itemId" element={<ItemDetail />} />
                         </Route>
+                        <Route path="user/checkin" element={<UserCheckinItemPage />}/>
                     </Routes>
                 </ChestProvider>
             </UserProvider>

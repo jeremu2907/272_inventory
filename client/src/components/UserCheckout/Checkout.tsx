@@ -310,7 +310,7 @@ export default function ChestDetail() {
                                 );
                             })}
                         </div>
-                        <Button type="submit" className="w-full" disabled={inProgress}>
+                        <Button type="submit" className="w-full">
                             {inProgress ? <span>Checking out...</span> : <span>Confirm checkout</span>}
                         </Button>
                     </form>

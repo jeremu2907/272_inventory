@@ -1,10 +1,11 @@
-from django.http import JsonResponse, HttpRequest
+from django.http import HttpResponse, JsonResponse, HttpRequest
 from chest.models import Chest, Item
-from .models import AccountRecord
+from .models import AccountRecord, UserItemCustody
 from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db import transaction
 
 def GetLogByChest(request: HttpRequest):
     if request.method != 'GET':
@@ -47,46 +48,42 @@ def GetLogByItem(request: HttpRequest):
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
 
-def GetLogByLastName(request: HttpRequest):
-    if request.method != 'GET':
-        return JsonResponse({'error': 'Only GET method is allowed'}, status=405)
-
-    last_name = request.GET.get('last_name')
-
-    if not last_name:
-        return JsonResponse({'error': 'Missing "last_name" parameter'}, status=400)
-
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def GetLogByLastName(request):
     try:
-        log_by_first_name = AccountRecord.objects\
-            .filter(user__last_name__icontains=last_name)\
-            .order_by('user__first_name', '-created_at')\
-            .values()\
-            [:100]
-        
-        records = []
-        
-        for record in log_by_first_name:
-            first_name = record.get('user__first_name')
-            group = next((obj for obj in records if obj['first_name'] == first_name), None)
-    
-            if group is None:
-                # If not found, create a new group
-                records.append({
-                    'first_name': first_name,
-                    'records': [record]
-                })
-            else:
-                # Append the record to the existing group
-                group['records'].append(record)
-                
-        
-        return JsonResponse(records, safe=False)
+        user = request.user
+
+        # Get up to 100 custody records
+        records = list(UserItemCustody.objects.filter(user=user).order_by('item').values()[:100])
+
+        if not records:
+            return HttpResponse(status=204)  # No content, no body
+
+        item_ids = [record["item_id"] for record in records if "item_id" in record]
+
+        items = Item.objects.filter(id__in=item_ids).values()
+        item_map = {item["id"]: item for item in items}
+
+        compiled_log = [
+            {
+                "item": item_map.get(record["item_id"]),
+                "record": record
+            }
+            for record in records
+        ]
+
+        return JsonResponse(compiled_log, safe=False)
+
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
+
     
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
+@transaction.atomic
 def Checkout(request: HttpRequest):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
@@ -126,47 +123,75 @@ def Checkout(request: HttpRequest):
                     return JsonResponse({'error': f'Insufficient quantity for item {item.name}'}, status=400)
 
                 item.qty_real -= qty
-                item.save()
+                
+                user_item_custody = UserItemCustody.objects.create(
+                    user=user,
+                    item=item,
+                    current_qty=qty
+                )
 
                 AccountRecord.objects.create(
                     user=user,
                     chest=None,
                     item=item,
-                    qty=qty,
+                    user_item_custody=user_item_custody,
+                    original_qty=qty,
+                    transaction_qty=qty,
                     action=action
                 )
+                
+                item.save()
 
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
 
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
 def Checkin(request: HttpRequest):
     if request.method != 'POST':
         return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
 
     try:
-        data = request.POST
-        id = data.get('id')
+        data = request.data
+        user = request.user
+        custody_list = data.get('record_list')
+        qty_map = {item["id"]: item["qty"] for item in custody_list}
 
-        if not id:
+        if not custody_list:
             return JsonResponse({'error': 'Missing required id parameters'}, status=400)
 
-        record: AccountRecord = AccountRecord.objects.get(id=id)
+        user_item_custody_list = UserItemCustody.objects.filter(id__in=qty_map.keys(), user=user)
         
-        if not record:
-            return JsonResponse({'message': 'Nothing to do'}, status=204)
+        if not user_item_custody_list.exists():
+            return HttpResponse(status=204)
         
-        if record.item is not None:
-            item = Item.objects.filter(id=record.item_id).first()
-            if not item:
-                return JsonResponse({'error': 'Item not found'}, status=404)
-            item.qty_real += record.qty
-            item.save()
-        
-        record.pk = None
-        record.action = False
-        record.created_at = now()
-        record.save()
+        for custody in user_item_custody_list:
+            if custody.item is not None:
+                record: AccountRecord = AccountRecord.objects.filter(user_item_custody=custody, user=user).first()
+                qty = qty_map[custody.pk]
+
+                if not custody.item:
+                    return JsonResponse({'error': 'Item not found'}, status=404)
+                if custody.item.qty_real + qty > custody.item.qty_total:
+                    return JsonResponse({'error': 'Invalid checkin amount'}, status=400)
+                
+                custody.current_qty = custody.current_qty - qty
+                custody.item.qty_real += qty
+
+                record.pk = None
+                record.action = False
+                record.created_at = now()
+                record.transaction_qty = qty
+
+                record.save()
+                custody.item.save()
+                if custody.current_qty > 0:
+                    custody.save()
+                else:
+                    custody.delete()
 
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:

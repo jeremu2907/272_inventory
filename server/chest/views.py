@@ -49,7 +49,7 @@ def ItemApi(request):
             if not chest:
                 return JsonResponse({'error': 'Chest not found'}, status=404)
 
-            items = Item.objects.filter(chest_id=chest.id).values()
+            items = Item.objects.filter(chest_id=chest.id).order_by('name').values()
             return JsonResponse(list(items), safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
