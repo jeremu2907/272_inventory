@@ -33,4 +33,4 @@ EXPOSE 8000 5173
 
 # Start both Django and Vite dev server (in background + foreground)
 WORKDIR /opt/app/server
-CMD bash -c "pnpm vite --host --port 5173 & gunicorn --bind 0.0.0.0:8000 inventory.wsgi"
+CMD bash -c "pnpm --prefix /opt/app/client vite --host --port 5173 & gunicorn --bind 0.0.0.0:8000 inventory.wsgi"
