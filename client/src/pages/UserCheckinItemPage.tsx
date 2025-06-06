@@ -150,6 +150,7 @@ export default function UserCheckinItemPage() {
             await AxiosAuthInstance().post("accountability/checkin", { record_list: order });
             toast.success("Checkin successful!");
             setDialogOpen(false);
+            setRowSelection({});
         } catch (error: AxiosError | any) {
             if (error.response && error.response.status === 401) {
                 toast.info("You need to login first. Then confirm Checkin again", { autoClose: 5000 });
@@ -295,9 +296,9 @@ export default function UserCheckinItemPage() {
                             onOpenAutoFocus={(e) => e.preventDefault()}
                         >
                             <DialogHeader>
-                                <DialogTitle>Checkout Items</DialogTitle>
+                                <DialogTitle>Checkin Items</DialogTitle>
                                 <DialogDescription>
-                                    Please confirm the items and amount you want to checkout.
+                                    Please confirm the items and amount you want to checkin.
                                 </DialogDescription>
                             </DialogHeader>
                             <form onSubmit={submitCheckin}>

@@ -179,6 +179,7 @@ export default function ChestDetail() {
             await AxiosAuthInstance().post("accountability/checkout", { item_list: order });
             toast.success("Checkout successful!");
             setDialogOpen(false);
+            setRowSelection({});
         } catch (error: AxiosError | any) {
             if(error.response && error.response.status === 401) {
                 toast.info("You need to login first. Then confirm checkout again", {autoClose: 5000});
