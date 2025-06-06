@@ -2,16 +2,18 @@ FROM node:24-slim
 
 WORKDIR /opt/app
 
-# Copy just the client files
-COPY client/ .
-
-# Enable pnpm with Corepack
-RUN corepack enable && \
+# Enable pnpm with Corepack and install serve globally
+RUN apt-get update && apt-get install -y curl && \
+    corepack enable && \
     corepack prepare pnpm@latest --activate && \
-    pnpm --version
+    pnpm add -g serve --unsafe-perm && \
+    pnpm --version && \
+    serve --version
+
+# Copy client files and install dependencies
+COPY client/ .
 
 RUN pnpm install --frozen-lockfile && \
     pnpm run build
-RUN pnpm add -g serve
 
-CMD serve -s /opt/app/client/dist --listen tcp://0.0.0.0:5173
+CMD ["serve", "-s", "/opt/app/dist", "--listen", "tcp://0.0.0.0:5173"]
