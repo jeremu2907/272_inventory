@@ -1,0 +1,13 @@
+services:
+  client:
+    build:
+      dockerfile: dockerfile.client
+    ports:
+      - 5173:5173
+    command: ["pnpm", "vite", "--host", "--port", "5173"]
+  server:
+    build:
+      dockerfile: dockerfile.server
+    ports:
+      - 8000:8000
+    command: ["gunicorn", "--bind", "0.0.0.0:8000", "inventory.wsgi"]

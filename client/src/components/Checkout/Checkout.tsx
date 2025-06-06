@@ -58,7 +58,7 @@ export const columns: ColumnDef<Item>[] = [
     },
     {
         accessorKey: "name",
-        filterFn: (row: any, columnId: string, filterValue: string) => {
+        filterFn: (row: any, _: string, filterValue: string) => {
             const item = row.original as Item;
             return (
                 item.name.toLowerCase().includes(filterValue.toLowerCase()) ||

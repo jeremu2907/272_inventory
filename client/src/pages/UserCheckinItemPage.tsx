@@ -59,7 +59,7 @@ export const columns: ColumnDef<CompiledRecord>[] = [
     },
     {
         accessorKey: "name",
-        filterFn: (row: any, columnId: string, filterValue: string) => {
+        filterFn: (row: any, _: string, filterValue: string) => {
             const record = row.original as CompiledRecord;
             return (
                 record.item.name.toLowerCase().includes(filterValue.toLowerCase()) ||

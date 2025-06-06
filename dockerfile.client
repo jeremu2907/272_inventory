@@ -1,0 +1,15 @@
+FROM node:24-slim
+
+WORKDIR /opt/app
+
+# Copy just the client files
+COPY client/ .
+
+# Enable pnpm with Corepack
+RUN corepack enable && \
+    corepack prepare pnpm@latest --activate && \
+    pnpm --version
+
+RUN pnpm install --frozen-lockfile && \
+    pnpm run build
+
