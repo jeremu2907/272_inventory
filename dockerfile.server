@@ -1,29 +1,15 @@
 FROM python:3.13-slim
 
-# Set environment variables to prevent Python from buffering outputs and writing .pyc files
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
 WORKDIR /opt/app
 
-# Install system dependencies in a single layer
-RUN apt update && apt install -y --no-install-recommends \
-    gcc \
-    libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy only requirements first (for better caching)
-COPY server/requirements.txt .
-
-# Install Python dependencies
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
-
-# Now copy the rest of the app
 COPY server .
 
-# Collect static files
+
+RUN apt update
+RUN apt install -y \
+    libpq-dev \
+    gcc
+RUN pip install -r requirements.txt
 RUN python manage.py collectstatic --no-input
 
-# Default command: run Gunicorn
 CMD ["gunicorn", "--bind", "0.0.0.0:8000", "inventory.wsgi"]
