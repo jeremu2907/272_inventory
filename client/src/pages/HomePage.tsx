@@ -98,6 +98,7 @@ export default function HomePage() {
 
     useEffect(() => {
         const fetchScannedChest = async () => {
+            if(!scannedSerial || !scannedCaseNumber) return;
             try {
                 const response = await AxiosInstance.get(
                     `chest/chest/single?serial=${scannedSerial}&case_number=${scannedCaseNumber}`

@@ -51,6 +51,7 @@ export const columns: ColumnDef<Item>[] = [
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
                 aria-label="Select row"
                 className="h-6 w-6"
+                disabled={row.original.qtyReal === 0}
             />
         ),
         enableSorting: false,
@@ -92,6 +93,11 @@ export const columns: ColumnDef<Item>[] = [
                     {item.nsn && <div className='break-all text-sm text-muted-foreground '>
                         {item.nsn}
                     </div>}
+                    {row.original.qtyReal === 0 &&
+                        <div className='break-all text-sm text-[red] '>
+                            checkout unavailable, 0 on-hand
+                        </div>
+                    }
                 </div>
             );
         }
@@ -161,7 +167,7 @@ export default function ChestDetail() {
 
             if (selectedItem) {
                 const idx = itemList.findIndex((row: any) => row.id === selectedItem.id);
-                if (idx !== -1) {
+                if (idx !== -1 && itemList[idx].qtyReal > 0) {
                     setRowSelection(prev => ({ ...prev, [idx]: true }));
                 }
             }
