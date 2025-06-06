@@ -16,7 +16,8 @@ function App() {
         <ProfileDialogProvider>
             <UserProvider>
                 <ChestProvider>
-                    <ToastContainer position='top-center' autoClose={2000} className={'w-full'}/>
+                    <ToastContainer position='top-center' autoClose={2000} className={'w-full'} pauseOnHover={false}
+                        pauseOnFocusLoss={false} />
                     <MenuBar />
                     <Routes>
                         <Route path="accountability" element={<AppWrapper />}>
@@ -26,7 +27,7 @@ function App() {
                         <Route path="detail">
                             <Route path="item/:itemId" element={<ItemDetail />} />
                         </Route>
-                        <Route path="user/checkin" element={<UserCheckinItemPage />}/>
+                        <Route path="user/checkin" element={<UserCheckinItemPage />} />
                     </Routes>
                 </ChestProvider>
             </UserProvider>

@@ -24,7 +24,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import { toast } from "react-toastify";
@@ -117,6 +117,8 @@ export const columns: ColumnDef<Item>[] = [
 export default function ChestDetail() {
     const { chest } = useChest();
     const { setOpenDialog } = useProfileDialog();
+    const location = useLocation();
+    const { selectedItem } = location.state;
 
     const [chestState, setChestState] = useState<Chest | null>(chest || null);
     const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -146,8 +148,7 @@ export default function ChestDetail() {
             )
 
             const data = response.data;
-
-            setItems(data.map((item: any) => ({
+            const itemList = data.map((item: any) => ({
                 id: item.id,
                 chest: item.chest_id,
                 layer: item.layer,
@@ -156,7 +157,16 @@ export default function ChestDetail() {
                 nsn: item.nsn,
                 qtyTotal: item.qty_total,
                 qtyReal: item.qty_real,
-            })));
+            }))
+
+            if (selectedItem) {
+                const idx = itemList.findIndex((row: any) => row.id === selectedItem.id);
+                if (idx !== -1) {
+                    setRowSelection(prev => ({ ...prev, [idx]: true }));
+                }
+            }
+            setItems(itemList);
+
         } catch (error) {
             console.error('Error fetching items:', error);
         }
@@ -181,8 +191,8 @@ export default function ChestDetail() {
             setDialogOpen(false);
             setRowSelection({});
         } catch (error: AxiosError | any) {
-            if(error.response && error.response.status === 401) {
-                toast.info("You need to login first. Then confirm checkout again", {autoClose: 5000});
+            if (error.response && error.response.status === 401) {
+                toast.info("You need to login first. Then confirm checkout again", { autoClose: 5000 });
                 setOpenDialog(true);
                 return;
             }
@@ -203,6 +213,17 @@ export default function ChestDetail() {
             fetchItems(chest.serial, chest.caseNumber);
         }
     }, [chest]);
+
+    useEffect(() => {
+        if (selectedItem && items.length > 0) {
+            setTimeout(() => {
+                const el = document.getElementById(`item-data-table${selectedItem.id}-scroll`);
+                if (el) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 200)
+        }
+    }, [items])
 
     if (!chestState) {
         return (
@@ -250,6 +271,7 @@ export default function ChestDetail() {
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
+                                    id={`item-data-table${row.id}-scroll`}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
@@ -306,7 +328,7 @@ export default function ChestDetail() {
                                             <p className="whitespace-normal text-sm text-muted-foreground">{item.nameExt}</p>
                                             <p className="whitespace-normal text-sm text-muted-foreground">on-hand: {item.qtyReal}</p>
                                         </span>
-                                        <Input type="number" className="w-15 text-right" defaultValue={1} min={1} max={item.qtyReal} name={`quantity-${item.id}`} autoFocus={false}/>
+                                        <Input type="number" className="w-15 text-right" defaultValue={1} min={1} max={item.qtyReal} name={`quantity-${item.id}`} autoFocus={false} />
                                     </div>
                                 );
                             })}

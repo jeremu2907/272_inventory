@@ -136,7 +136,7 @@ export default function HomePage() {
     }, [searchTerm]); // runs every time searchTerm changes
 
     return (
-        <div className="p-4 flex flex-col gap-4">
+        <div className="p-4 flex flex-col gap-4 justify-center min-h-[80vh]">
             {isFromScan && scannedChest &&
                 <>
                     <h1 className="text-lg font-bold">Scanned the following chest:</h1>

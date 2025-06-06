@@ -30,8 +30,6 @@ export default function ItemDetail() {
             }
         };
 
-        
-
         fetchChest();
     }, [item.chest]);
 
@@ -73,9 +71,9 @@ export default function ItemDetail() {
                         <span className="font-semibold">Platoon:</span>
                         <span>{chest.plt}{pltSuffix(chest.plt)}</span>
                     </div>
-                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full">
-                        <Button variant="secondary" className="w-full max-w-sm">
-                            <span>View Chest</span>
+                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full" state={{selectedItem: item}}>
+                        <Button variant="secondary" className="w-full max-w-sm bg-[#B2FFC4]">
+                            <span>Checkout this item</span>
                         </Button>
                     </Link>
                 </>
