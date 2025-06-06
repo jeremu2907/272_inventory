@@ -3,6 +3,9 @@ FROM python:3.13-slim AS base
 # Set working directory
 WORKDIR /opt/app
 
+ENV PNPM_HOME="/usr/local/bin"
+ENV PATH="$PNPM_HOME:$PATH"
+
 # Install OS deps
 RUN apt update && apt install -y \
     libpq-dev \
@@ -25,12 +28,18 @@ RUN python manage.py collectstatic --no-input
 WORKDIR /opt/app
 COPY client/ ./client/
 WORKDIR /opt/app/client
+RUN chmod -R +x /opt/app/client
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
+RUN pnpm add -g serve
 
 # Expose ports
 EXPOSE 8000 5173
 
 # Start both Django and Vite dev server (in background + foreground)
 WORKDIR /opt/app/server
-CMD bash -c "pnpm --prefix /opt/app/client vite --host --port 5173 & gunicorn --bind 0.0.0.0:8000 inventory.wsgi"
+CMD bash -c "serve -s /opt/app/client/dist --listen tcp://0.0.0.0:5173 & gunicorn --bind 0.0.0.0:8000 inventory.wsgi"
+
+
+
+
