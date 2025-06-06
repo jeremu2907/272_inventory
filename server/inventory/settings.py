@@ -62,6 +62,7 @@ ALLOWED_HOSTS = ['*']
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite frontend
     "http://172.20.10.14:5173",  # Vite frontend on mobile hotspot
+    "https://toolhub272.onrender.com"
 ]
 
 MIDDLEWARE = [
