@@ -17,6 +17,16 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 
 export default function HomePage() {
+    const [searchParams] = useSearchParams();
+    let scannedSerial = null
+    let scannedCaseNumber = null
+
+    const isFromScan = searchParams.get("serial") !== null && searchParams.get("caseNumber") !== null;
+    if (isFromScan) {
+        scannedSerial = searchParams.get("serial");
+        scannedCaseNumber = searchParams.get("caseNumber");
+    }
+
     const [searchTerm, setSearchTerm] = useState("");
     const [itemResults, setItemResults] = useState<Item[]>([]);
     const [chestResults, setChestResults] = useState<Chest[]>([]);
@@ -24,41 +34,8 @@ export default function HomePage() {
     const [searching, setSearching] = useState(false);
     const [scannedChest, setScannedChest] = useState<Chest | null>(null);
 
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const { setChest } = useChest();
-
-    const isFromScan = searchParams.get("serial") !== null && searchParams.get("caseNumber") !== null;
-    let scannedSerial = null;
-    let scannedCaseNumber = null;
-    if (isFromScan) {
-        scannedSerial = searchParams.get("serial");
-        scannedCaseNumber = searchParams.get("caseNumber");
-
-        const data = (async () => {
-            return await AxiosInstance.get(
-                `chest/chest/single?serial=${scannedSerial}&case_number=${scannedCaseNumber}`
-            );
-        }
-        )();
-        data.then((response) => {
-            const chest: Chest = {
-                id: response.data.id,
-                plt: response.data.plt,
-                serial: response.data.serial,
-                nsn: response.data.nsn,
-                description: response.data.description,
-                caseNumber: response.data.case_number,
-                caseTotal: response.data.case_total
-            };
-            setScannedChest(chest);
-            setChest(chest);
-        }
-        ).catch((error) => {
-            console.error("Error fetching scanned chest data:", error);
-        }
-        );
-    }
 
     const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -118,6 +95,31 @@ export default function HomePage() {
             navigate(`accountability/${scannedSerial}/${scannedCaseNumber}`);
         }
     };
+
+    useEffect(() => {
+        const fetchScannedChest = async () => {
+            try {
+                const response = await AxiosInstance.get(
+                    `chest/chest/single?serial=${scannedSerial}&case_number=${scannedCaseNumber}`
+                );
+                const chest: Chest = {
+                    id: response.data.id,
+                    plt: response.data.plt,
+                    serial: response.data.serial,
+                    nsn: response.data.nsn,
+                    description: response.data.description,
+                    caseNumber: response.data.case_number,
+                    caseTotal: response.data.case_total
+                };
+                setScannedChest(chest);
+                setChest(chest);
+            } catch (error) {
+                console.error("Error fetching scanned chest data:", error);
+            }
+        };
+
+        fetchScannedChest();
+    }, [isFromScan, searchParams, setChest]);
 
     useEffect(() => {
         if (debounceRef.current) {

@@ -118,7 +118,7 @@ export default function ChestDetail() {
     const { chest } = useChest();
     const { setOpenDialog } = useProfileDialog();
     const location = useLocation();
-    const { selectedItem } = location.state;
+    const { selectedItem } = (location.state ?? {}) as { selectedItem?: Item };
 
     const [chestState, setChestState] = useState<Chest | null>(chest || null);
     const [sorting, setSorting] = React.useState<SortingState>([]);
