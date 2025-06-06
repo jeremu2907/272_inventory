@@ -11,3 +11,5 @@ RUN apt install -y \
     gcc
 RUN pip install -r requirements.txt
 RUN python manage.py collectstatic --no-input
+
+CMD gunicorn --bind 0.0.0.0:8000 inventory.wsgi

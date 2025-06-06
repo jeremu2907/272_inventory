@@ -12,4 +12,6 @@ RUN corepack enable && \
 
 RUN pnpm install --frozen-lockfile && \
     pnpm run build
+RUN pnpm add -g serve
 
+CMD serve -s /opt/app/client/dist --listen tcp://0.0.0.0:5173
