@@ -1,4 +1,3 @@
-import Home from "@/assets/home.svg";
 import UserIcon from '@/assets/user.svg';
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import AxiosInstance from "@/axios/AxiosInstance";
