@@ -98,7 +98,7 @@ export default function HomePage() {
 
     useEffect(() => {
         const fetchScannedChest = async () => {
-            if(!scannedSerial || !scannedCaseNumber) return;
+            if (!scannedSerial || !scannedCaseNumber) return;
             try {
                 const response = await AxiosInstance.get(
                     `chest/chest/single?serial=${scannedSerial}&case_number=${scannedCaseNumber}`
@@ -140,7 +140,7 @@ export default function HomePage() {
 
     return (
         <div className="p-4 flex flex-col gap-4 justify-center min-h-[80vh]">
-            {isFromScan && scannedChest &&
+            {isFromScan && <>{scannedChest ?
                 <>
                     <h1 className="text-lg font-bold">Scanned the following chest:</h1>
                     <p className="text-lg font-medium text-muted-foreground text-center">{scannedChest.description}</p>
@@ -167,7 +167,7 @@ export default function HomePage() {
                     >
                         <span>Checkout Items</span>
                     </Button>
-                    <Button
+                    {/* <Button
                         variant="secondary"
                         className="w-full max-w-sm"
                         onClick={() => {
@@ -175,9 +175,11 @@ export default function HomePage() {
                         }
                     >
                         <span>Checkin Items</span>
-                    </Button>
+                    </Button> */}
                 </>
-            }
+                :
+                <p className="text-sm text-muted-foreground text-center">Loading scanned chest...</p>
+            }</>}
 
             <h1 className="text-lg font-bold mt-4">Inventory Finder</h1>
             <Input
