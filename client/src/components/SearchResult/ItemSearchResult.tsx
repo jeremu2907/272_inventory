@@ -12,6 +12,7 @@ export default function ItemSearchResult({ item }: { item: Item }) {
                         <h1 className="text-base font-bold max-w-[70vw]">{item.name}</h1>
                         <p className="font-regular">{item.nameExt}</p>
                         <p className="text-muted-foreground">{item.nsn}</p>
+                        <p className="text-muted-foreground">On-hand: {item.qtyReal}</p>
                     </div>
                     <img src={Arrow} alt="Arrow" height={20} width={20} className="ml-auto text-muted-foreground" />
                 </Button>

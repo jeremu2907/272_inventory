@@ -24,7 +24,7 @@ import {
 } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import { toast } from "react-toastify";
@@ -81,22 +81,27 @@ export const columns: ColumnDef<Item>[] = [
         cell: ({ row }) => {
             const item = row.original as Item;
             return (
-                <div className='whitespace-normal truncate max-w-[37vw]'>
+                <div className='whitespace-normal truncate max-w-[40vw]'>
                     <Link to={`/detail/item/${item.id}`} state={item}>
                         <div className='text-base font-bold underline'>
                             {item.name}
                         </div>
                     </Link>
-                    <div className='break-all text-sm font-medium'>
+                    <div className='text-sm font-medium'>
                         {item.nameExt}
                     </div>
                     {item.nsn && <div className='break-all text-sm text-muted-foreground '>
                         {item.nsn}
                     </div>}
                     {row.original.qtyReal === 0 &&
-                        <div className='break-all text-sm text-[red] '>
-                            checkout unavailable, 0 on-hand
-                        </div>
+                        <>
+                            <div className='break-all text-xs text-[red] '>
+                                checkout unavailable,
+                            </div>
+                            <div className='break-all text-xs text-[red] '>
+                                0 on-hand
+                            </div>
+                        </>
                     }
                 </div>
             );
@@ -124,10 +129,12 @@ export default function ChestDetail() {
     const { chest } = useChest();
     const { setOpenDialog } = useProfileDialog();
     const location = useLocation();
-    const { selectedItem } = (location.state ?? {}) as { selectedItem?: Item };
+    const navigate = useNavigate();
+    const { selectedItem } = location.state ?? {};
 
-    const [chestState, setChestState] = useState<Chest | null>(chest || null);
+    const [chestState, setChestState] = useState<Chest | null>(null);
     const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [selectedItemIdx, setSelectedItemIdx] = React.useState(-1);
     const [rowSelection, setRowSelection] = React.useState({});
     const [items, setItems] = React.useState<Item[]>([]);
     const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -148,6 +155,7 @@ export default function ChestDetail() {
     })
 
     const fetchItems = async (serial: string, caseNumber: number) => {
+        setInProgress(true);
         try {
             const response = await AxiosInstance.get(
                 `chest/item?serial=${serial}&case_number=${caseNumber}`
@@ -167,14 +175,19 @@ export default function ChestDetail() {
 
             if (selectedItem) {
                 const idx = itemList.findIndex((row: any) => row.id === selectedItem.id);
-                if (idx !== -1 && itemList[idx].qtyReal > 0) {
-                    setRowSelection(prev => ({ ...prev, [idx]: true }));
+                setSelectedItemIdx(idx);
+                if (idx !== -1) {
+                    const temp = itemList[0];
+                    itemList[0] = itemList[idx];
+                    itemList[idx] = temp;
                 }
             }
             setItems(itemList);
 
         } catch (error) {
             console.error('Error fetching items:', error);
+        } finally {
+            setInProgress(false);
         }
     }
 
@@ -196,6 +209,10 @@ export default function ChestDetail() {
             toast.success("Checkout successful!");
             setDialogOpen(false);
             setRowSelection({});
+            if (chest) {
+                fetchItems(chest.serial, chest.caseNumber);
+            }
+            navigate(location.pathname, { replace: true, state: {} });
         } catch (error: AxiosError | any) {
             if (error.response && error.response.status === 401) {
                 toast.info("You need to login first. Then confirm checkout again", { autoClose: 5000 });
@@ -206,9 +223,6 @@ export default function ChestDetail() {
             toast.error("Checkout failed. Please try again.");
             return;
         } finally {
-            if (chest) {
-                fetchItems(chest.serial, chest.caseNumber);
-            }
             setInProgress(false);
         }
     }
@@ -216,20 +230,25 @@ export default function ChestDetail() {
     useEffect(() => {
         if (chest) {
             setChestState(chest);
-            fetchItems(chest.serial, chest.caseNumber);
         }
     }, [chest]);
 
     useEffect(() => {
-        if (selectedItem && items.length > 0) {
-            setTimeout(() => {
-                const el = document.getElementById(`item-data-table${selectedItem.id}-scroll`);
-                if (el) {
-                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            }, 200)
+        if (chestState) {
+            fetchItems(chestState.serial, chestState.caseNumber);
         }
-    }, [items])
+    }, [chestState])
+
+    useEffect(() => {
+        if (selectedItem && 
+                selectedItem.qtyReal > 0 &&
+                items.length > 0 &&
+                (selectedItem.id === items[0].id) &&
+                selectedItemIdx !== -1
+            ) {
+            setRowSelection(prev => ({ ...prev, [0]: true }));
+        }
+    }, [selectedItemIdx])
 
     if (!chestState) {
         return (
@@ -288,9 +307,13 @@ export default function ChestDetail() {
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                {inProgress ? <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    Pulling data...
                                 </TableCell>
+                                    :
+                                    <TableCell colSpan={columns.length} className="h-24 text-center">
+                                        No item found
+                                    </TableCell>}
                             </TableRow>
                         )}
                     </TableBody>

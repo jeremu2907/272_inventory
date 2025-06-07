@@ -53,7 +53,19 @@ def ItemApi(request):
             return JsonResponse(list(items), safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
-    
+
+def GetItemById(request: HttpRequest):
+    try:
+        if request.method == 'GET':
+            id = request.GET.get('id')
+            if id:
+                item = Item.objects.filter(id=id).values().first()
+                if not item:
+                    return JsonResponse({'error': 'Item not found'}, status=404)
+                return JsonResponse(item, safe=False)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
 def SearchAny(request: HttpRequest):
     try:
         if request.method == 'GET':

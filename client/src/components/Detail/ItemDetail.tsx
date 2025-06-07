@@ -11,6 +11,7 @@ export default function ItemDetail() {
     const item: Item = location.state;
 
     const [chest, setChest] = useState<Chest | null>(null);
+    const [updatedItem, setUpdatedItem] = useState<Item>(item)
 
     useEffect(() => {
         const fetchChest = async () => {
@@ -33,20 +34,38 @@ export default function ItemDetail() {
         fetchChest();
     }, [item.chest]);
 
+    useEffect(() => {
+        const fetchItem = async () => {
+            try {
+                const { data } = await AxiosInstance.get(
+                    `chest/item/single?id=${item.id}`
+                );
+                setUpdatedItem({
+                    ...item,
+                    qtyReal: data.qty_real,
+                    qtyTotal: data.qty_total
+                });
+            } catch (e) {
+                console.error(e)
+            }
+        }
+        fetchItem();
+    }, []);
+
     return (
         <div className="flex flex-col gap-4 p-4 text-left">
-            <h1 className="text-2xl font-bold text-center">{item.name}</h1>
-            {item.nameExt && <h2 className="text-lg font-medium text-muted-foreground text-center">{item.nameExt}</h2>}
-            {item.nsn && <p className="text-sm text-muted-foreground text-center">{item.nsn}</p>}
+            <h1 className="text-2xl font-bold text-center">{updatedItem.name}</h1>
+            {updatedItem.nameExt && <h2 className="text-lg font-medium text-muted-foreground text-center">{updatedItem.nameExt}</h2>}
+            {updatedItem.nsn && <p className="text-sm text-muted-foreground text-center">{updatedItem.nsn}</p>}
 
             <div className="flex items-center gap-4">
                 <span className="font-semibold">Total Assigned:</span>
-                <span>{item.qtyTotal}</span>
+                <span>{updatedItem.qtyTotal}</span>
             </div>
 
             <div className="flex items-center gap-4">
                 <span className="font-semibold">On-hand:</span>
-                <span>{item.qtyReal}</span>
+                <span>{updatedItem.qtyReal}</span>
             </div>
 
             {chest ? (
@@ -71,7 +90,7 @@ export default function ItemDetail() {
                         <span className="font-semibold">Platoon:</span>
                         <span>{chest.plt}{pltSuffix(chest.plt)}</span>
                     </div>
-                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full" state={{selectedItem: item}}>
+                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full" state={{ selectedItem: updatedItem }}>
                         <Button variant="secondary" className="w-full max-w-sm bg-[#B2FFC4]">
                             <span>Checkout this item</span>
                         </Button>
