@@ -351,7 +351,7 @@ export default function ChestDetail() {
                             {table.getSelectedRowModel().rows.filter(row => row.original.qtyReal > 0).map((row) => {
                                 const item = row.original as Item;
                                 return (
-                                    <div key={item.id} className="flex items-center justify-between">
+                                    <div key={item.id} className="flex items-center justify-between p-1">
                                         <span>
                                             <p className="whitespace-normal text-base font-bold">{item.name}</p>
                                             <p className="whitespace-normal text-sm text-muted-foreground">{item.nameExt}</p>

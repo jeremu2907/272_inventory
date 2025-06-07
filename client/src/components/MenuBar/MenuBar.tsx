@@ -115,7 +115,7 @@ export default function MenuBar() {
     }, [])
 
     return (
-        <div className="bg-background h-[50px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-49">
+        <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-49">
             <Link to="/" className='flex items-center gap-2'>
                 {/* <img src={Home} alt="Home" height={20} width={20} /> */}
                 <h1 className="text-xl font-bold">Tool <span className="bg-[#ffa31a] px-1 rounded">hub</span></h1>
@@ -123,9 +123,12 @@ export default function MenuBar() {
             {loggedIn && user ? (
                 <Popover>
                     <PopoverTrigger>
-                        <p className="text-sm text-muted-foreground underline cursor-pointer">
-                            {user.firstName} {user.lastName} ({user.rank})
-                        </p>
+                        <div className="text-right">
+                            <p className="text-md text-muted-foreground underline cursor-pointer">
+                                {user.firstName} {user.lastName} ({user.rank})
+                            </p>
+                            {user.isStaff && <p className="text-[15px] text-muted-foreground cursor-pointer">Supervisor</p>}
+                        </div>
                     </PopoverTrigger>
                     <PopoverContent className="w-[50vw] max-w-[200px] z-101 flex flex-col justify-evenly items-center gap-4">
                         <Link to="/user/checkin" className="w-full">

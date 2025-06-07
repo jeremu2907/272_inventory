@@ -118,6 +118,7 @@ export default function UserCheckinItemPage() {
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [inProgress, setInProgress] = React.useState(false);
     const [initialRender, setInitialRender] = React.useState(false);
+    const [inventoryMode, setInventoryMode] = React.useState(false);
 
     const table = useReactTable<CompiledRecord>({
         data: compiledLogs,
@@ -306,13 +307,13 @@ export default function UserCheckinItemPage() {
                                     {table.getSelectedRowModel().rows.filter(row => row.original.record.currentQty > 0).map((row) => {
                                         const item = row.original as CompiledRecord;
                                         return (
-                                            <div key={item.record.id} className="flex items-center justify-between">
+                                            <div key={item.record.id} className="flex items-center justify-between p-1">
                                                 <span>
                                                     <p className="whitespace-normal text-base font-bold">{item.item.name}</p>
                                                     <p className="whitespace-normal text-sm text-muted-foreground">{item.item.nameExt}</p>
                                                     <p className="whitespace-normal text-sm text-muted-foreground">Currently checked out: {item.record.currentQty}</p>
                                                 </span>
-                                                <Input type="number" className="w-15 text-right" defaultValue={1} min={1} max={item.record.currentQty} name={`quantity-${item.record.id}`} autoFocus={false} />
+                                                <Input type="number" className="w-15 text-right" defaultValue={item.record.currentQty} min={1} max={item.record.currentQty} name={`quantity-${item.record.id}`} autoFocus={false} />
                                             </div>
                                         );
                                     })}

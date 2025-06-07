@@ -1,6 +1,6 @@
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from chest.models import Chest, Item
-from .models import AccountRecord, UserItemCustody
+from .models import AccountRecord, UserChestCustody, UserItemCustody
 from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -78,8 +78,7 @@ def GetLogByLastName(request):
 
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
-
-    
+ 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -193,6 +192,35 @@ def Checkin(request: HttpRequest):
                 else:
                     custody.delete()
 
+        return JsonResponse({'message': 'Log recorded successfully'}, status=201)
+    except Exception as e:
+        return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
+def ChestCheckout(request: HttpRequest):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    try:
+        data = request.data
+        serial = data.get("serial")
+        case_number = data.get("case_number")
+        user = request.user
+
+        chest = Chest.objects.filter(serial=serial, case_number=case_number).first()
+        if not chest:
+            return JsonResponse({'error': f'Item with serial {serial} and case number {case_number} not found'}, status=404)
+        
+        items_in_chest = Item.objects.filter(chest=chest)
+
+        UserChestCustody.objects.create(
+            user = user,
+            chest = chest
+        )
+        
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
