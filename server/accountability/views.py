@@ -51,7 +51,7 @@ def GetLogByItem(request: HttpRequest):
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
-def GetLogByLastName(request):
+def GetCheckedOutItemsByUser(request):
     try:
         user = request.user
 
@@ -178,7 +178,10 @@ def Checkin(request: HttpRequest):
                     return JsonResponse({'error': 'Invalid checkin amount'}, status=400)
                 
                 custody.current_qty = custody.current_qty - qty
-                custody.item.qty_real += qty
+                qty_real_after_returned += qty + custody.item.qty_real
+                custody.item.qty_real = qty_real_after_returned
+                if qty_real_after_returned > custody.item.qty_total:
+                    custody.item.qty_real = custody.item.qty_total
 
                 record.pk = None
                 record.action = False
@@ -214,7 +217,9 @@ def ChestCheckout(request: HttpRequest):
         if not chest:
             return JsonResponse({'error': f'Item with serial {serial} and case number {case_number} not found'}, status=404)
         
-        items_in_chest = Item.objects.filter(chest=chest)
+        items_in_chest = Item.objects.filter(chest=chest).values()
+        
+        
 
         UserChestCustody.objects.create(
             user = user,

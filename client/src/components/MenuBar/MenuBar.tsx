@@ -13,6 +13,7 @@ import { toast } from "react-toastify";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import Home from "@/assets/home.svg"
 
 export default function MenuBar() {
     const { user, setUser } = useUser();
@@ -117,8 +118,9 @@ export default function MenuBar() {
     return (
         <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-49">
             <Link to="/" className='flex items-center gap-2'>
-                {/* <img src={Home} alt="Home" height={20} width={20} /> */}
-                <h1 className="text-xl font-bold">Tool <span className="bg-[#ffa31a] px-1 rounded">hub</span></h1>
+                <img src={Home} alt="Home" height={20} width={20} />
+                {/* <h1 className="text-xl font-bold">Tool <span className="bg-[#ffa31a] py-1 px-2 rounded">hub</span></h1> */}
+                {/* <h1 className="text-xl font-bold">Tool <span className="bg-[#5dcae8] py-1 px-2 rounded">hub</span></h1> */}
             </Link>
             {loggedIn && user ? (
                 <Popover>

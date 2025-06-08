@@ -10,10 +10,8 @@ class UserItemCustody(models.Model):
     current_qty = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
-class UserChestCustody(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='account_custody')
+class UserChestCustody(UserItemCustody):
     chest = models.ForeignKey(Chest, on_delete=models.CASCADE, related_name='chest_custody', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
 class AccountRecord(models.Model):
     BORROW_CHOICES = [
@@ -25,6 +23,7 @@ class AccountRecord(models.Model):
     chest = models.ForeignKey(Chest, on_delete=models.CASCADE, related_name='checkouts', null=True, blank=True)
     item = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='checkouts', null=True, blank=True)
     user_item_custody = models.ForeignKey(UserItemCustody, on_delete=models.SET_NULL, null=True, blank=True)
+    user_chest_custody = models.ForeignKey(UserChestCustody, on_delete=models.SET_NULL, null=True, blank=True)
     original_qty = models.IntegerField(default=1)
     transaction_qty = models.IntegerField(default=1)
     action = models.BooleanField(choices=BORROW_CHOICES, default=True) # True for checkout, False for checkin
