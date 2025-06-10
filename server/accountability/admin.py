@@ -10,12 +10,14 @@ class ChestAdmin(admin.ModelAdmin):
         'user',
         'item_name',
         'item_name_ext',
+        'chest_desc',
         'action',
         'original_qty',
         'transaction_qty',
         'created_at'
     ]
     ordering = ['-created_at']
+    search_fields = ['user', 'item_name', 'item_name_ext', 'created_at']
 
     def item_name(self, obj):
         return obj.item.name if obj.item else '-'
@@ -25,13 +27,17 @@ class ChestAdmin(admin.ModelAdmin):
         return obj.item.name_ext if obj.item else '-'
     item_name_ext.short_description = 'Item Name Ext'
     
+    def chest_desc(self, obj):
+        return f'serial-{obj.chest.description}' if obj.chest else '-'
+    chest_desc.short_description = 'Chest Info'
+    
     def created_at_local(self, obj):
         return localtime(obj.created_at).strftime('%Y-%m-%d %H:%M:%S')
     created_at_local.short_description = 'Created At (Local Time)'
     created_at_local.admin_order_field = 'created_at'
     
 @admin.register(UserItemCustody)
-class ChestAdmin(admin.ModelAdmin):
+class ItemCusodyAdmin(admin.ModelAdmin):
     list_display = [
         'user',
         'item_name',
