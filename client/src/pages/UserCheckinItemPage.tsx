@@ -13,7 +13,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { useChest } from "@/context/ChestContext";
 import { useProfileDialog } from "@/context/ProfileDialogContext";
 import type { Chest } from "@/types/Chest";
 import type { CompiledRecord } from "@/types/CompiledRecord";
