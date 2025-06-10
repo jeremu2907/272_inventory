@@ -110,14 +110,14 @@ export const columns: ColumnDef<CompiledRecord>[] = [
 ]
 
 export default function UserCheckinItemPage() {
-    const { chest } = useChest();
+    // const { chest } = useChest();
     const { setOpenDialog } = useProfileDialog();
 
     const [sorting, setSorting] = useState<SortingState>([]);
     const [rowSelection, setRowSelection] = useState({});
     const [compiledLogs, setCompiledLogs] = useState<CompiledRecord[]>([])
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [checkedOutDialogOpen, setCheckedOutDialogOpen] = useState(false);
+    // const [checkedOutDialogOpen, setCheckedOutDialogOpen] = useState(false);
     const [inProgress, setInProgress] = useState(false);
     const [initialRender, setInitialRender] = useState(false);
     const [checkedOutChests, setCheckedOutChests] = useState<Chest[]>([])
