@@ -71,7 +71,7 @@ export default function ItemDetail() {
             {chest ? (
                 <>
                     <h1 className="mt-4 font-semibold">Found in the following Chest:</h1>
-                    <Link to={`/accountability/${chest.serial}/${chest.caseNumber}`} className="w-full">
+                    <Link to={`/accountability/checkout/${chest.serial}/${chest.caseNumber}`} className="w-full">
                         <p className="text-lg font-medium text-muted-foreground text-center underline">{chest.description}</p>
                     </Link>
                     <p className="text-sm text-muted-foreground text-center">{chest.nsn}</p>

@@ -1,12 +1,11 @@
 import type { Chest } from "@/types/Chest";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
-import Arrow from '@/assets/arrow-right.svg';
 
-export default function ChestSearchResult({ chest }: { chest: Chest }) {
+export default function ChestCheckinSelect({ chest }: { chest: Chest }) {
     return (
-        <div className="align-items-start flex p-2 hover:bg-accent hover:text-accent-foreground mt-2">
-            <Link to={`/accountability/checkout/${chest.serial}/${chest.caseNumber}`} className="w-full">
+        <div className="align-items-start flex p-2 hover:bg-accent hover:text-accent-foreground mt-2 w-full">
+            <Link to={`/accountability/inventory/chest/${chest.serial}/${chest.caseNumber}`} className="w-full">
                 <Button variant="ghost" className="p-0 w-full h-fit flex justify-between">
                     <div className="text-left flex flex-col whitespace-normal">
                         <h1 className="text-base font-bold max-w-[70vw]">{chest.description}</h1>
@@ -14,7 +13,7 @@ export default function ChestSearchResult({ chest }: { chest: Chest }) {
                         <p className="font-regular">Case {chest.caseNumber} of {chest.caseTotal} in set</p>
                         <p className="text-muted-foreground">{chest.nsn}</p>
                     </div>
-                    <img src={Arrow} alt="Arrow" height={20} width={20} className="ml-auto text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground underline">inventory</p>
                 </Button>
             </Link>
         </div>

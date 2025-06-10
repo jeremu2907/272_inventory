@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage'
 import { ToastContainer } from 'react-toastify';
 import { ProfileDialogProvider } from './context/ProfileDialogContext'
 import UserCheckinItemPage from './pages/UserCheckinItemPage'
+import ChestInventoryPage from './pages/ChestInventoryPage'
 
 function App() {
     return (
@@ -20,14 +21,15 @@ function App() {
                         pauseOnFocusLoss={false} />
                     <MenuBar />
                     <Routes>
-                        <Route path="accountability" element={<AppWrapper />}>
-                            <Route path=":chestSerial/:chestcaseNumber" element={<CheckoutChestDetail />} />
-                        </Route>
                         <Route path="/" element={<HomePage />} />
+                        <Route path="accountability" element={<AppWrapper />}>
+                            <Route path="checkout/:chestSerial/:chestcaseNumber" element={<CheckoutChestDetail />} />
+                            <Route path="checkin" element={<UserCheckinItemPage />} />
+                            <Route path="inventory/chest/:chestSerial/:chestcaseNumber" element={<ChestInventoryPage />}/>
+                        </Route>
                         <Route path="detail">
                             <Route path="item/:itemId" element={<ItemDetail />} />
                         </Route>
-                        <Route path="user/checkin" element={<UserCheckinItemPage />} />
                     </Routes>
                 </ChestProvider>
             </UserProvider>

@@ -92,7 +92,7 @@ export default function HomePage() {
 
     const checkoutBtnOnClick = () => {
         if (isFromScan) {
-            navigate(`accountability/${scannedSerial}/${scannedCaseNumber}`);
+            navigate(`/accountability/checkout/${scannedSerial}/${scannedCaseNumber}`);
         }
     };
 

@@ -10,6 +10,9 @@ class UserItemCustody(models.Model):
     current_qty = models.IntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
+class UserChestCustody(UserItemCustody):
+    chest = models.ForeignKey(Chest, on_delete=models.CASCADE, related_name='chest_custody', null=True, blank=True)
+
 class AccountRecord(models.Model):
     BORROW_CHOICES = [
         (True, 'BORROW'),
