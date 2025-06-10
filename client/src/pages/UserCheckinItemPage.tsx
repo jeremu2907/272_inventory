@@ -1,5 +1,5 @@
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
-import ChestCheckinSelect from "@/components/Checkin/ChestCheckInSelect";
+import ChestCheckinSelect from "@/components/Checkin/ChestCheckinSelect";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";

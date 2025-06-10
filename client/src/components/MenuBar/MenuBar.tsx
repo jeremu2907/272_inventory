@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
-import Home from "@/assets/home.svg"
 
 export default function MenuBar() {
     const { user, setUser } = useUser();
