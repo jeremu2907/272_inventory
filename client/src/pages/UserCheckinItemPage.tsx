@@ -1,6 +1,5 @@
 import { AxiosAuthInstance } from "@/axios/AxiosAuthInstance";
 import ChestCheckinSelect from "@/components/Checkin/ChestCheckInSelect";
-import ChestSearchResult from "@/components/SearchResult/ChestSearchResult";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -238,7 +237,7 @@ export default function UserCheckinItemPage() {
             <Accordion type="single" collapsible>
                 {(initialRender && checkedOutChests.length === 0) ?
                     <div className='flex flex-col gap-4'>
-                        <h1 className='text-lg self-start weight font-bold'>No chest found</h1>
+                        <h1 className='text-lg self-start weight font-bold'>No chest to be returned ✅</h1>
                     </div>
                     :
                     <AccordionItem value="item-1">
@@ -258,7 +257,7 @@ export default function UserCheckinItemPage() {
 
                 {(initialRender && compiledLogs.length === 0) ?
                     <div className='flex flex-col gap-4'>
-                        <h1 className='text-lg self-start weight font-bold m-4'>No individually borrowed tool found</h1>
+                        <h1 className='text-lg self-start weight font-bold mt-4'>No individually borrowed tool to be returned ✅</h1>
                     </div>
                     :
                     <AccordionItem value="item-2">

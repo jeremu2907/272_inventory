@@ -330,3 +330,54 @@ def Checkin(request: HttpRequest):
         return JsonResponse({'message': 'Log recorded successfully'}, status=201)
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
+
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
+def InventoryChest(request: HttpRequest):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+
+    data = request.data
+    user = request.user
+    item_custody_id_qty_list = data.get('item_custody_id_qty_list')
+    qty_map = {item["id"]: item["qty"] for item in item_custody_id_qty_list}
+    note_map = {item["id"]: item["note"] for item in item_custody_id_qty_list}
+
+    if not item_custody_id_qty_list:
+        raise ValidationError("missing item_custody_id_qty_list data field")
+
+    user_item_custody_list = UserItemCustody\
+        .objects\
+        .filter(id__in=qty_map.keys(), user=user)
+    
+    if not user_item_custody_list.exists():
+        raise ValidationError("user_item_custody_list does not exist")
+    
+    for custody in user_item_custody_list:
+        if custody.item is not None:
+            record: AccountRecord = AccountRecord.objects.filter(user_item_custody=custody, user=user).first()
+            qty = qty_map[custody.pk]
+
+            if not custody.item:
+                raise ValidationError(f"Item with id {custody.item.id} does not exist")
+            
+            qty_real_after_returned = qty + custody.item.qty_real
+            custody.item.qty_real = qty_real_after_returned
+            if qty_real_after_returned > custody.item.qty_total:
+                custody.item.qty_real = custody.item.qty_total
+
+            record.pk = None
+            record.action = False
+            record.created_at = now()
+            record.transaction_qty = qty
+
+            record.save()
+            custody.item.save()
+            
+            UserChestCustody.objects.filter(id=custody.id, user=user).first().delete()
+            
+            custody.delete()
+
+    return JsonResponse({'message': 'Log recorded successfully'}, status=201)

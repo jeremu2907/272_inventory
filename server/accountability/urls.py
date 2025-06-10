@@ -10,4 +10,5 @@ urlpatterns = [
     path("user/chest/item/log", views.GetChestCheckedOutItemsByUser, name="user_chest_item_list"),
     path("checkout", views.Checkout, name="checkout"),
     path("checkin", views.Checkin, name="checkin"),
+    path("inventory/chest", views.InventoryChest, name="inventory_chest")
 ]

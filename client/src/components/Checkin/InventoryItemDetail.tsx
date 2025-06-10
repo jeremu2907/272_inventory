@@ -5,7 +5,7 @@ import { Input } from "../ui/input";
 export default function IventoryItemDetail({ compiledRecord }: { compiledRecord: CompiledRecord }) {
     const { item, record } = compiledRecord;
 
-    const [showTextbox, setShowTextbox] = useState<boolean>(true);
+    const [showTextbox, setShowTextbox] = useState<boolean>(false);
 
     const verify = (event: React.ChangeEvent<HTMLInputElement>) => {
         // if (event.currentTarget.value.length === 0) {
@@ -42,7 +42,7 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                         className="w-15 text-right"
                         min={0}
                         max={item.qtyTotal}
-                        defaultValue={0}
+                        // defaultValue={item.qtyTotal}
                         name={`quantity-${record.id}`}
                         autoFocus={false}
                         onChange={verify}
