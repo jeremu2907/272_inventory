@@ -18,7 +18,7 @@ export default function ChestInventoryPage() {
         const fetchChestCheckedOutItems = async () => {
             try {
                 const response = await AxiosAuthInstance().get(
-                    `accountability/user/chest/item/log?${chestSerial}&case_number=${chestcaseNumber}`
+                    `accountability/user/chest/item/log?serial=${chestSerial}&case_number=${chestcaseNumber}`
                 );
                 const { compiled_log } = response.data || { compiled_log: [] };
 

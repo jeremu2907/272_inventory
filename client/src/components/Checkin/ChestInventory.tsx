@@ -40,7 +40,7 @@ export default function ChestInventory(props: propType) {
                 note: (formData.get(`comment-item-${itemId}`)?.toString())??""
             };
             return object;
-        });
+        }).filter(item => Number.isInteger(item.id));
 
         console.log(order);
 

@@ -394,7 +394,7 @@ export default function ChestDetail() {
                                             <p className="whitespace-normal text-sm text-muted-foreground">{item.nameExt}</p>
                                             <p className="whitespace-normal text-sm text-muted-foreground">on-hand: {item.qtyReal}</p>
                                         </span>
-                                        <Input type="number" className="w-15 text-right" defaultValue={1} min={1} max={item.qtyReal} name={`quantity-${item.id}`} autoFocus={false} />
+                                        <Input type="number" className="w-15 text-right" inputMode="numeric" defaultValue={1} min={1} max={item.qtyReal} name={`quantity-${item.id}`} autoFocus={false} />
                                     </div>
                                 );
                             })}

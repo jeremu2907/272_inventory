@@ -5,13 +5,13 @@ import { Input } from "../ui/input";
 export default function IventoryItemDetail({ compiledRecord }: { compiledRecord: CompiledRecord }) {
     const { item, record } = compiledRecord;
 
-    const [showTextbox, setShowTextbox] = useState<boolean>(false);
+    const [showTextbox, setShowTextbox] = useState<boolean>(true);
 
     const verify = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.currentTarget.value.length === 0) {
-            setShowTextbox(false);
-            return;
-        }
+        // if (event.currentTarget.value.length === 0) {
+        //     setShowTextbox(false);
+        //     return;
+        // }
 
         const inputQty = Number(event.currentTarget.value);
         if (inputQty < record.currentQty) {
@@ -22,15 +22,16 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
     }
 
     return (
-        <div>
-            <div className="align-items-start justify-between flex border-b border-border p-2 hover:bg-accent hover:text-accent-foreground mt-2">
+        <div className="border-b border-border">
+            <div className="align-items-start justify-between flex p-2 hover:bg-accent hover:text-accent-foreground mt-2">
                 {/* <Link to={`/detail/item/${item.id}`} state={item} className="w-full"> */}
                     <div>
                         <div className="text-left flex flex-col whitespace-normal">
                             <h1 className="text-base font-bold max-w-[70vw]">{item.name}</h1>
-                            <p className="font-regular">{item.nameExt}</p>
-                            <p className="text-muted-foreground">{item.nsn}</p>
-                            <p className="font-semibold text-[#0bad6a]">Checked out: {record.currentQty}</p>
+                            <p className="text-sm font-regular">{item.nameExt}</p>
+                            <p className="text-sm text-muted-foreground">{item.nsn}</p>
+                            <p className="font-semibold">Original issued qty: {item.qtyTotal}</p>
+                            <p className="font-semibold text-[#0bad6a]">Checked out qty: {record.currentQty}</p>
                         </div>
                     </div>
                 {/* </Link> */}
@@ -39,11 +40,13 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                     <Input
                         type="number"
                         className="w-15 text-right"
-                        min={1}
+                        min={0}
                         max={item.qtyTotal}
-                        name={`quantity-${item.id}`}
+                        defaultValue={0}
+                        name={`quantity-${record.id}`}
                         autoFocus={false}
                         onChange={verify}
+                        inputMode="numeric"
                     />
                 </div>
             </div>
@@ -51,8 +54,8 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                 <Input
                     type="text"
                     required
-                    placeholder="brief reason why check in qty < check out qty"
-                    className="mb-8 border-red-500 focus-visible:ring-red-500 focus-visible:ring-2 focus-visible:ring-offset-2"
+                    placeholder="justify return qty < borrowed qty"
+                    className="mb-4 border-red-500 focus-visible:ring-red-500 focus-visible:ring-2 focus-visible:ring-offset-2"
                     name={`comment-item-${item.id}`}
                 >
                 </Input>}

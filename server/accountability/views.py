@@ -140,8 +140,7 @@ def GetChestCheckedOutItemsByUser(request):
 
         records = list(UserItemCustody\
             .objects\
-            .filter(user=user)\
-            .exclude(id__in=item_checkedout_as_chest_list)
+            .filter(user=user, id__in=item_checkedout_as_chest_list)\
             .order_by('item')\
             .values()\
             [:300]
@@ -287,8 +286,16 @@ def Checkin(request: HttpRequest):
 
         if not custody_list:
             return JsonResponse({'error': 'Missing required id parameters'}, status=400)
+        
+        item_checkedout_as_chest_list = list(UserChestCustody\
+            .objects\
+            .filter(user=user)\
+            .values_list('useritemcustody_ptr_id', flat=True))
 
-        user_item_custody_list = UserItemCustody.objects.filter(id__in=qty_map.keys(), user=user)
+        user_item_custody_list = UserItemCustody\
+            .objects\
+            .filter(id__in=qty_map.keys(), user=user)\
+            .exclude(id__in=item_checkedout_as_chest_list)
         
         if not user_item_custody_list.exists():
             return HttpResponse(status=204)

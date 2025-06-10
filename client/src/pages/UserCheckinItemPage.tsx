@@ -155,6 +155,7 @@ export default function UserCheckinItemPage() {
             toast.success("Checkin successful!");
             setDialogOpen(false);
             setRowSelection({});
+            fetchLogs();
         } catch (error: AxiosError | any) {
             if (error.response && error.response.status === 401) {
                 toast.info("You need to login first. Then confirm Checkin again", { autoClose: 5000 });
@@ -165,9 +166,6 @@ export default function UserCheckinItemPage() {
             toast.error("Checkin failed. Please try again.");
             return;
         } finally {
-            if (chest) {
-                fetchLogs();
-            }
             setInProgress(false);
         }
     }
@@ -260,7 +258,7 @@ export default function UserCheckinItemPage() {
 
                 {(initialRender && compiledLogs.length === 0) ?
                     <div className='flex flex-col gap-4'>
-                        <h1 className='text-lg self-start weight font-bold'>No borrowed tool found</h1>
+                        <h1 className='text-lg self-start weight font-bold m-4'>No individually borrowed tool found</h1>
                     </div>
                     :
                     <AccordionItem value="item-2">
@@ -339,7 +337,7 @@ export default function UserCheckinItemPage() {
                                                             <p className="whitespace-normal text-sm text-muted-foreground">{item.item.nameExt}</p>
                                                             <p className="whitespace-normal text-sm text-muted-foreground">Currently checked out: {item.record.currentQty}</p>
                                                         </span>
-                                                        <Input type="number" className="w-15 text-right" defaultValue={item.record.currentQty} min={1} max={item.record.currentQty} name={`quantity-${item.record.id}`} autoFocus={false} />
+                                                        <Input type="number" className="w-15 text-right" inputMode="numeric" defaultValue={item.record.currentQty} min={0} max={item.record.currentQty} name={`quantity-${item.record.id}`} autoFocus={false} />
                                                     </div>
                                                 );
                                             })}
