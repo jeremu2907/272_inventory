@@ -173,7 +173,7 @@ export default function UserCheckinItemPage() {
     }
 
     const fetchLogs = async () => {
-        const response = await AxiosAuthInstance().get("accountability/user/log");
+        const response = await AxiosAuthInstance().get("accountability/user/item/log");
         const { compiled_log } = response.data || { compiled_log: [] };
 
         setCompiledLogs(compiled_log.map((log: any) => {
@@ -204,21 +204,22 @@ export default function UserCheckinItemPage() {
         setInitialRender(true);
     }
 
-    const fetchCheckedOutChests = async () => {
-        const response = await AxiosAuthInstance().get("/accountability/user/chest/log");
-        const data = response.data;
-
-        setCheckedOutChests(data.map((chest: any) => ({
-            serial: chest.serial,
-            plt: chest.plt,
-            nsn: chest.nsn,
-            description: chest.description,
-            caseTotal: chest.case_total,
-            caseNumber: chest.case_number
-        })));
-    }
-
     useEffect(() => {
+
+        const fetchCheckedOutChests = async () => {
+            const response = await AxiosAuthInstance().get("/accountability/user/chest/log");
+            const data = response.data;
+
+            setCheckedOutChests(data.map((chest: any) => ({
+                serial: chest.serial,
+                plt: chest.plt,
+                nsn: chest.nsn,
+                description: chest.description,
+                caseTotal: chest.case_total,
+                caseNumber: chest.case_number
+            })));
+        }
+
         fetchLogs();
         fetchCheckedOutChests();
     }, [])
@@ -361,7 +362,6 @@ export default function UserCheckinItemPage() {
                         if (table.getSelectedRowModel().rows.length === 0) {
                             return;
                         }
-                        console.log("Selected items:", table.getSelectedRowModel().rows.map(row => row.original));
                         setDialogOpen(true);
                     }
                     }

@@ -76,7 +76,6 @@ def GetCheckedOutChestByUser(request: HttpRequest):
     serialized = json.loads(serialize('json', chests))
 
     return JsonResponse([value["fields"] for value in serialized], safe=False)
-    
 
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
@@ -128,10 +127,15 @@ def GetIndividualCheckedOutItemsByUser(request):
 def GetChestCheckedOutItemsByUser(request):
     try:
         user = request.user
+        
+        serial = request.GET.get('serial')
+        case_number = request.GET.get('case_number')
+        
+        chest = Chest.objects.filter(serial=serial, case_number=case_number).first()
 
         item_checkedout_as_chest_list = list(UserChestCustody\
             .objects\
-            .filter(user=user)\
+            .filter(user=user, chest=chest)\
             .values_list('useritemcustody_ptr_id', flat=True))
 
         records = list(UserItemCustody\
@@ -140,11 +144,11 @@ def GetChestCheckedOutItemsByUser(request):
             .exclude(id__in=item_checkedout_as_chest_list)
             .order_by('item')\
             .values()\
-            [:100]
+            [:300]
         )
 
         if not records:
-            return HttpResponse(status=204)  # No content, no body
+            return HttpResponse(status=204)
 
         item_ids = [record["item_id"] for record in records if "item_id" in record]
 
@@ -158,6 +162,10 @@ def GetChestCheckedOutItemsByUser(request):
             }
             for record in records
         ]
+        
+        compiled_log.sort(key=lambda log: 
+            log["item"]["layer"]
+        )
 
         return JsonResponse({
             "compiled_log": compiled_log,

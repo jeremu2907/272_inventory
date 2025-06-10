@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import AxiosInstance from '@/axios/AxiosInstance';
 import type { Chest } from '@/types/Chest';
 import { useChest } from '@/context/ChestContext';
+import { pltSuffix } from '@/lib/utils';
 
 export default function AppWrapper() {
     const { plt, chestSerial, chestcaseNumber } = useParams();
@@ -53,16 +54,19 @@ export default function AppWrapper() {
         <div className='pt-4'>
             <Breadcrumb>
                 <BreadcrumbList>
-                    {/* {plt && <><BreadcrumbItem>
-                        <BreadcrumbLink href={`/${plt}`}>{plt}{pltSuffix(plt)}</BreadcrumbLink>
+                    {plt && <><BreadcrumbItem>
+                        {/* <BreadcrumbLink href={`/${plt}`}>{plt}{pltSuffix(plt)}</BreadcrumbLink> */}
+                        <p className="text-sm text-muted-foreground">{plt}{pltSuffix(plt)}</p>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
-                    } */}
+                    }
                     {chestSerial && <><BreadcrumbItem>
-                        <BreadcrumbLink href={`/${plt}/${chestSerial}`}>{chestSerial}</BreadcrumbLink>
+                        {/* <BreadcrumbLink href={`/${plt}/${chestSerial}`}>{chestSerial}</BreadcrumbLink> */}
+                        <p className="text-sm text-muted-foreground">{chestSerial}</p>
                     </BreadcrumbItem><BreadcrumbSeparator /></>
                     }
                     {chestSerial && chestcaseNumber && <><BreadcrumbItem>
-                        <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestcaseNumber} of {caseTotal}</strong></BreadcrumbLink>
+                        {/* <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestcaseNumber} of {caseTotal}</strong></BreadcrumbLink> */}
+                        <p className="text-sm text-muted-foreground"><strong>{chestcaseNumber} of {caseTotal}</strong></p>
                     </BreadcrumbItem></>}
                 </BreadcrumbList>
             </Breadcrumb>

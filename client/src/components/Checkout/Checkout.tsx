@@ -297,7 +297,7 @@ export default function ChestDetail() {
             </div>
             <div className="w-full">
                 {user?.isStaff && items.length > 0 &&
-                    <Button onClick={() => { setSupervisorDialogOpen(true); console.log('lsdkjlsdkfjlsdkjfl') }} className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] mb-4">
+                    <Button onClick={() => { setSupervisorDialogOpen(true) }} className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] mb-4">
                         <span>Checkout all items in chest</span>
                     </Button>
                 }

@@ -118,8 +118,8 @@ export default function MenuBar() {
     return (
         <div className="bg-background h-[70px] fixed top-0 left-0 w-full flex flex-row justify-between items-center px-4 shadow-sm z-49">
             <Link to="/" className='flex items-center gap-2'>
-                <img src={Home} alt="Home" height={20} width={20} />
-                {/* <h1 className="text-xl font-bold">Tool <span className="bg-[#ffa31a] py-1 px-2 rounded">hub</span></h1> */}
+                {/* <img src={Home} alt="Home" height={20} width={20} /> */}
+                <h1 className="text-xl font-bold">Tool<span className="ml-[3px] bg-[#ffa31a] py-[1px] px-1 rounded">hub</span></h1>
                 {/* <h1 className="text-xl font-bold">Tool <span className="bg-[#5dcae8] py-1 px-2 rounded">hub</span></h1> */}
             </Link>
             {loggedIn && user ? (
@@ -133,7 +133,7 @@ export default function MenuBar() {
                         </div>
                     </PopoverTrigger>
                     <PopoverContent className="w-[50vw] max-w-[200px] z-101 flex flex-col justify-evenly items-center gap-4">
-                        <Link to="/user/checkin" className="w-full">
+                        <Link to="/accountability/checkin" className="w-full">
                             <Button variant="default" className="w-full" autoFocus={false}>
                                 Checked out items
                             </Button>
