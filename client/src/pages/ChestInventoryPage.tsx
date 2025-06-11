@@ -67,7 +67,8 @@ export default function ChestInventoryPage() {
                     description: data.description,
                     caseNumber: data.case_number,
                     caseTotal: data.case_total,
-                    id: data.id
+                    id: data.id,
+                    driveUrl: data.drive_url
                 };
 
                 setChestInfo(chestTemp);

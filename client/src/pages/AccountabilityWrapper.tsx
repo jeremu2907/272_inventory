@@ -32,7 +32,8 @@ export default function AppWrapper() {
                 nsn: data.nsn,
                 description: data.description,
                 caseNumber: data.case_number,
-                caseTotal: data.case_total
+                caseTotal: data.case_total,
+                driveUrl: data.drive_url
             };
             setChest(chest);
         } catch (error) {

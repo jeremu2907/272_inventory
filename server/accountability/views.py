@@ -63,6 +63,30 @@ def GetCheckedOutItemsInChest(chest_serial: str, case_number: int, user):
         .values('useritemcustody_ptr_id')
     return list(user_item_custody_id_list)
 
+def GetChestInventoryPdfList(request: HttpRequest):
+    serial = request.GET.get('serial')
+    case_number = request.GET.get('case_number')
+    inventoryPdfList = list(ChestInventoryPdf.objects.filter(
+        chest__serial=serial,
+        chest__case_number=case_number)\
+        .order_by('-created_at')\
+        .values('created_at', 'id'))
+    return JsonResponse({"pdf_list": inventoryPdfList}, safe=False)
+
+def GetChestInventoryPdf(request: HttpRequest):
+    serial = request.GET.get('serial')
+    case_number = request.GET.get('case_number')
+    id = request.GET.get('id')
+    inventoryPdfData = ChestInventoryPdf.objects.filter(
+        chest__serial=serial,
+        chest__case_number=case_number,
+        id=id).first().pdf_data
+
+    # Return the PDF in the response
+    response = HttpResponse(inventoryPdfData, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="chest_inventory.pdf"'
+    return response
+
 @api_view(['GET'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
