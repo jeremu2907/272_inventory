@@ -24,7 +24,8 @@ export default function ItemDetail() {
                     nsn: data.nsn,
                     description: data.description,
                     caseNumber: data.case_number,
-                    caseTotal: data.case_total
+                    caseTotal: data.case_total,
+                    driveUrl: data.drive_url
                 });
             } catch (error) {
                 console.error("Error fetching chest data:", error);
