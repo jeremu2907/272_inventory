@@ -42,7 +42,7 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                         className="w-15 text-right"
                         min={0}
                         max={item.qtyTotal}
-                        // defaultValue={item.qtyTotal}
+                        defaultValue={record.currentQty}
                         name={`quantity-${record.id}`}
                         autoFocus={false}
                         onChange={verify}
@@ -56,7 +56,7 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                     required
                     placeholder="justify return qty < borrowed qty"
                     className="mb-4 border-red-500 focus-visible:ring-red-500 focus-visible:ring-2 focus-visible:ring-offset-2"
-                    name={`comment-item-${item.id}`}
+                    name={`comment-item-${record.id}`}
                 >
                 </Input>}
         </div>

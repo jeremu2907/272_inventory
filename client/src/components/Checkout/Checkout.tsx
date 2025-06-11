@@ -31,6 +31,8 @@ import { toast } from "react-toastify";
 import type { AxiosError } from "axios";
 import { useProfileDialog } from "@/context/ProfileDialogContext";
 import { useUser } from "@/context/UserContext";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../ui/accordion";
+import DriveLogo from "@/assets/googledrive.svg";
 
 export const columns: ColumnDef<Item>[] = [
     {
@@ -142,6 +144,7 @@ export default function ChestDetail() {
     const [dialogOpen, setDialogOpen] = React.useState(false);
     const [supervisorDialogOpen, setSupervisorDialogOpen] = useState(false);
     const [inProgress, setInProgress] = React.useState(false);
+    const [pdfList, setPdfList] = React.useState([]);
 
     const table = useReactTable<Item>({
         data: items,
@@ -257,9 +260,30 @@ export default function ChestDetail() {
         }
     }
 
+    const viewPdf = async (id: Number) => {
+        await AxiosAuthInstance().get(
+            `accountability/inventoryPdf?serial=${chest?.serial}&case_number=${chest?.caseNumber}&id=${id}`,
+            { responseType: 'blob' }
+        ).then((res) => {
+            const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            window.open(pdfUrl, '_blank'); // Opens in new tab
+        }).catch((err) => {
+            console.error("Error downloading PDF", err);
+        });
+    }
+
     useEffect(() => {
+        const fetchPdfList = async () => {
+            const response = await AxiosInstance.get(
+                `accountability/chest/inventorypdf?serial=${chest?.serial}&case_number=${chest?.caseNumber}`
+            )
+            const data = response.data;
+            setPdfList(data.pdf_list ?? [])
+        }
         if (chest) {
             setChestState(chest);
+            fetchPdfList();
         }
     }, [chest]);
 
@@ -291,10 +315,31 @@ export default function ChestDetail() {
 
     return (
         <div className='flex flex-col gap-4 align-start text-left'>
-            <div>
-                <h1 className='text-lg font-bold'>{chestState?.description}</h1>
-                <p className="text-sm text-muted-foreground">{chestState?.nsn}</p>
+            <div className="flex justify-between gap-2">
+                <div>
+                    <h1 className='text-lg font-bold'>{chestState?.description}</h1>
+                    <p className="text-sm text-muted-foreground">{chestState?.nsn}</p>
+                </div>
+                <Button className='p-2' variant={"secondary"} onClick={() => {window.open(chest?.driveUrl); console.log(chest?.driveUrl)}}>
+                    <img src={DriveLogo} alt="drive-logo" height={30} width={30}/>
+                </Button>
             </div>
+            {pdfList.length > 0 &&
+                <Accordion type="single" collapsible>
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>
+                            <p className="underline">View past inventories</p>
+                        </AccordionTrigger>
+                        <AccordionContent className="max-h-40 overflow-y-auto">
+                            {pdfList.map((item: {id: Number, created_at: string}, idx) =>
+                                <p className="underline cursor-pointer my-2" key={`pdf-item-${idx}`} onClick={() => {viewPdf(item.id)}}>
+                                    {new Date(item.created_at).toLocaleString()}
+                                </p>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            }
             <div className="w-full">
                 {user?.isStaff && items.length > 0 &&
                     <Button onClick={() => { setSupervisorDialogOpen(true) }} className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] mb-4">

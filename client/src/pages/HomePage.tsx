@@ -110,7 +110,8 @@ export default function HomePage() {
                     nsn: response.data.nsn,
                     description: response.data.description,
                     caseNumber: response.data.case_number,
-                    caseTotal: response.data.case_total
+                    caseTotal: response.data.case_total,
+                    driveUrl: response.data.drive_url
                 };
                 setScannedChest(chest);
                 setChest(chest);

@@ -45,7 +45,16 @@ export default function ChestInventory(props: propType) {
         }).filter(item => Number.isInteger(item.id));
 
         try {
-            await AxiosAuthInstance().post("accountability/inventory/chest", { item_custody_id_qty_list: order });
+            await AxiosAuthInstance().post("accountability/inventory/chest",
+                { item_custody_id_qty_list: order },
+                { responseType: 'blob' }
+            ).then((res) => {
+                const pdfBlob = new Blob([res.data], { type: 'application/pdf' });
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                window.open(pdfUrl, '_blank'); // Opens in new tab
+            }).catch((err) => {
+                console.error("Error downloading PDF", err);
+            });
             toast.success("Inventory submission successful!");
             setDialogOpen(false);
             setTimeout(() => {
@@ -116,7 +125,7 @@ export default function ChestInventory(props: propType) {
                         </DialogDescription>
                     </DialogHeader>
                     <p className="text-[#0bad6a]">Updating database and saving inventory...
-                        
+
                     </p>
                     <p className="font-bold">Please don't close or navigate away until done</p>
                 </DialogContent>
