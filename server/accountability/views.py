@@ -1,7 +1,8 @@
 from django.forms import ValidationError
 from django.http import HttpResponse, JsonResponse, HttpRequest
 from chest.models import Chest, Item
-from .models import AccountRecord, UserChestCustody, UserItemCustody
+from .util import generate_pdf_blob
+from .models import AccountRecord, ChestInventoryPdf, UserChestCustody, UserItemCustody
 from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -348,22 +349,41 @@ def InventoryChest(request: HttpRequest):
     if not item_custody_id_qty_list:
         raise ValidationError("missing item_custody_id_qty_list data field")
 
-    user_item_custody_list = UserItemCustody\
+    user_item_custody_list = UserChestCustody\
         .objects\
-        .filter(id__in=qty_map.keys(), user=user)
-    
+        .filter(id__in=qty_map.keys(), user=user)\
+        .order_by("item__layer")
+        
     if not user_item_custody_list.exists():
         raise ValidationError("user_item_custody_list does not exist")
     
+    table_headers_list = [
+        "Item name",
+        "Item detail",
+        "NSN",
+        "Issued QTY",
+        "Checkout QTY",
+        "Checkin QTY",
+        "Note"
+    ]
+    table_headers_str = ','.join(table_headers_list)
+    
+    table_rows = [table_headers_str]
+    
+    chest = None
+    
     for custody in user_item_custody_list:
         if custody.item is not None:
+            if chest is None:
+                chest = custody.chest
+            
             record: AccountRecord = AccountRecord.objects.filter(user_item_custody=custody, user=user).first()
-            qty = qty_map[custody.pk]
+            transaction_qty = qty_map[custody.pk]
 
             if not custody.item:
-                raise ValidationError(f"Item with id {custody.item.id} does not exist")
+                raise ValidationError(f"Item does not exist")
             
-            qty_real_after_returned = qty + custody.item.qty_real
+            qty_real_after_returned = transaction_qty + custody.item.qty_real
             custody.item.qty_real = qty_real_after_returned
             if qty_real_after_returned > custody.item.qty_total:
                 custody.item.qty_real = custody.item.qty_total
@@ -371,13 +391,36 @@ def InventoryChest(request: HttpRequest):
             record.pk = None
             record.action = False
             record.created_at = now()
-            record.transaction_qty = qty
+            record.transaction_qty = transaction_qty
+            
+            table_row = [
+                custody.item.name,
+                custody.item.name_ext or '',
+                custody.item.nsn or '',
+                custody.item.qty_total,
+                custody.current_qty,
+                transaction_qty,
+                note_map[custody.pk]
+            ]
+            
+            table_row_str = ','.join(str(col) for col in table_row)
+            table_rows.append(table_row_str)
 
             record.save()
             custody.item.save()
             
-            UserChestCustody.objects.filter(id=custody.id, user=user).first().delete()
-            
+            UserChestCustody.objects.filter(id=custody.pk, user=user).first().delete()
             custody.delete()
 
-    return JsonResponse({'message': 'Log recorded successfully'}, status=201)
+    print("Generating PDF")
+    table_rows_str = '\n'.join(table_rows)
+    data = generate_pdf_blob(table_rows_str, chest, user)
+    
+    ChestInventoryPdf.objects.create(
+        chest=chest,
+        pdf_data=data
+    )
+    
+    response = HttpResponse(data, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="chest_inventory.pdf"'
+    return response

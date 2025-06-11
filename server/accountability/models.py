@@ -36,3 +36,8 @@ class AccountRecord(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()  # Triggers clean() method
         super().save(*args, **kwargs)
+
+class ChestInventoryPdf(models.Model):
+    chest = models.ForeignKey(Chest, on_delete=models.CASCADE, related_name='inventory_pdf', null=True, blank=True)
+    pdf_data = models.BinaryField()
+    created_at = models.DateTimeField(auto_now_add=True)

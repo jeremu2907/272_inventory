@@ -22,6 +22,7 @@ export default function MenuBar() {
     const [last4, setLast4] = useState("");
     const [loggedIn, setLoggedIn] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [popoverOpen, setPopoverOpen] = useState(false);
 
     const onChangeLastName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setLastName(e.target.value);
@@ -59,6 +60,10 @@ export default function MenuBar() {
         }
     };
 
+    const closeMenu = async () => setTimeout(() => {
+        setPopoverOpen(false);
+    }, 200)
+
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         setSubmitting(true);
         e.preventDefault();
@@ -94,6 +99,7 @@ export default function MenuBar() {
             accessTokenSet("");
             setUser(null);
             toast.success("Signed out successfully!");
+            closeMenu();
         } catch (error) {
             console.error("Sign out failed:", error);
             toast.error("Sign out failed. Please try again later.");
@@ -122,7 +128,7 @@ export default function MenuBar() {
                 {/* <h1 className="text-xl font-bold">Tool <span className="bg-[#5dcae8] py-1 px-2 rounded">hub</span></h1> */}
             </Link>
             {loggedIn && user ? (
-                <Popover>
+                <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
                     <PopoverTrigger>
                         <div className="text-right">
                             <p className="text-md text-muted-foreground underline cursor-pointer">
@@ -133,7 +139,7 @@ export default function MenuBar() {
                     </PopoverTrigger>
                     <PopoverContent className="w-[50vw] max-w-[200px] z-101 flex flex-col justify-evenly items-center gap-4">
                         <Link to="/accountability/checkin" className="w-full">
-                            <Button variant="default" className="w-full" autoFocus={false}>
+                            <Button variant="default" className="w-full" autoFocus={false} onClick={closeMenu}>
                                 Checked out items
                             </Button>
                         </Link>

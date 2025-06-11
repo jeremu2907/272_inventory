@@ -42,7 +42,7 @@ export default function IventoryItemDetail({ compiledRecord }: { compiledRecord:
                         className="w-15 text-right"
                         min={0}
                         max={item.qtyTotal}
-                        // defaultValue={item.qtyTotal}
+                        defaultValue={record.currentQty}
                         name={`quantity-${record.id}`}
                         autoFocus={false}
                         onChange={verify}
