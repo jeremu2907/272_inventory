@@ -236,12 +236,12 @@ export default function UserCheckinItemPage() {
             <Accordion type="single" collapsible>
                 {(initialRender && checkedOutChests.length === 0) ?
                     <div className='flex flex-col gap-4'>
-                        <h1 className='text-lg self-start weight font-bold'>No chest to be returned ✅</h1>
+                        <h1 className='text-lg self-start weight font-bold'>🟢 No chest to be returned</h1>
                     </div>
                     :
                     <AccordionItem value="item-1">
                         <AccordionTrigger>
-                            <h2 className="text-lg font-bold">Chest</h2>
+                            <h2 className="text-lg font-bold">🔴 Chest</h2>
                         </AccordionTrigger>
                         <AccordionContent>
                             {checkedOutChests.map(chest => (
@@ -256,12 +256,12 @@ export default function UserCheckinItemPage() {
 
                 {(initialRender && compiledLogs.length === 0) ?
                     <div className='flex flex-col gap-4'>
-                        <h1 className='text-lg self-start weight font-bold mt-4'>No individually borrowed tool to be returned ✅</h1>
+                        <h1 className='text-lg self-start weight font-bold mt-4'>🟢 No individual tool to be returned</h1>
                     </div>
                     :
                     <AccordionItem value="item-2">
                         <AccordionTrigger>
-                            <h2 className="text-lg font-bold">Individual Items</h2>
+                            <h2 className="text-lg font-bold">🔴 Individual Items</h2>
                         </AccordionTrigger>
                         <AccordionContent>
                             <div className="w-full">

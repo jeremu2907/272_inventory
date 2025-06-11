@@ -206,7 +206,7 @@ export default function ChestDetail() {
         const entries = Array.from(formData.entries());
 
         const order = entries.map(([key, value]) => ({
-            item_id: key.replace("quantity-", ""),
+            item_id: Number(key.replace("quantity-", "")),
             qty: Number(value),
         }));
 
