@@ -15,15 +15,15 @@ const QRScanner = () => {
           .start(
             cameraId,
             {
-              fps: 10,    // Optional frame per second
+              fps: 1,    // Optional frame per second
               qrbox: 250, // Optional scanner box size
             },
             (decodedText, _) => {
               console.log("Scanned:", decodedText);
               // handle your scanned data
             },
-            (errorMessage) => {
-              console.warn("Scan error", errorMessage);
+            (_) => {
+            //   console.warn("Scan error", errorMessage);
             }
           )
           .catch((err) => {
