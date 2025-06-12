@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'react-toastify';
 
 type scanType = {
     serial: string, caseNumber: number
@@ -15,7 +16,8 @@ const QRCodeScanner: React.FC = () => {
 
     const extractParams = (url: string): scanType | null => {
         try {
-            const parsedUrl = new URL(url);
+            const cleanedUrl = url.replace(/"/g, '').replace(/”/g, '').replace(/“/g, '');
+            const parsedUrl = new URL(cleanedUrl);
             const params = parsedUrl.searchParams;
 
             const serial = params.get('serial');
@@ -28,7 +30,6 @@ const QRCodeScanner: React.FC = () => {
                     caseNumber,
                 };
             }
-
             return null;
         } catch (error) {
             console.error('Invalid URL:', error);
@@ -57,8 +58,11 @@ const QRCodeScanner: React.FC = () => {
                     const exists = serialCaseNumberRef.current.some(
                         item => item.serial === params.serial && item.caseNumber === params.caseNumber
                     );
-                    if (exists) return;
+                    if (exists) {
+                        return;
+                    }
                     setSerialCaseNumber(prev => [...prev, params]);
+                    toast.success("Scan success");
                 }
             },
             (_: string) => { }
@@ -84,7 +88,7 @@ const QRCodeScanner: React.FC = () => {
                 <h1 className='text-2xl font-bold mb-4'>Relocate Chests</h1>
                 <p className='mb-4 text-base'>
                     Scan all <span className='font-bold'>checkout QR codes</span> of relocated chests then specify
-                    the destination of them at the end of the page
+                    their new destination at the end of the page
                 </p>
             </div>
             <div id={scanRegionId} style={{ width: "100%", maxWidth: "650px" }} />
