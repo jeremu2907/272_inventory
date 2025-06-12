@@ -1,3 +1,5 @@
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
 import { useEffect, useRef, useState } from 'react';
 
@@ -97,6 +99,10 @@ const QRCodeScanner: React.FC = () => {
                     ))}
                 </div>
             </div>
+            <Input type="text" placeholder='new location' className='mt-4'/>
+            <Button className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] my-4">
+                <span>Update location for {serialCaseNumber.length} chests</span>
+            </Button>
         </div>
     );
 };
