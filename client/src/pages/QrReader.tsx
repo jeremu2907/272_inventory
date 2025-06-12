@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 
 const QRScanner = () => {
   const qrCodeRegionId = "reader";
-  const scannerRef = useRef(null);
+  const scannerRef = useRef<Html5Qrcode | null>(null);
 
   useEffect(() => {
     const html5QrCode = new Html5Qrcode(qrCodeRegionId);
@@ -18,12 +18,12 @@ const QRScanner = () => {
               fps: 10,    // Optional frame per second
               qrbox: 250, // Optional scanner box size
             },
-            (decodedText, decodedResult) => {
+            (decodedText, _) => {
               console.log("Scanned:", decodedText);
               // handle your scanned data
             },
             (errorMessage) => {
-              // console.warn("Scan error", errorMessage);
+              console.warn("Scan error", errorMessage);
             }
           )
           .catch((err) => {
@@ -37,7 +37,9 @@ const QRScanner = () => {
     return () => {
       if (scannerRef.current) {
         scannerRef.current.stop().then(() => {
-          scannerRef.current.clear();
+          if (scannerRef.current) {
+            scannerRef.current.clear();
+          }
         });
       }
     };
