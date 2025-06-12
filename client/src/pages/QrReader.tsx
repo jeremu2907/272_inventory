@@ -15,7 +15,7 @@ const QRScanner = () => {
           .start(
             cameraId,
             {
-              fps: 1,    // Optional frame per second
+              fps: 5,    // Optional frame per second
               qrbox: 250, // Optional scanner box size
             },
             (decodedText, _) => {
