@@ -11,6 +11,8 @@ import { ToastContainer } from 'react-toastify';
 import { ProfileDialogProvider } from './context/ProfileDialogContext'
 import UserCheckinItemPage from './pages/UserCheckinItemPage'
 import ChestInventoryPage from './pages/ChestInventoryPage'
+import QrReaderC from './pages/QrReader'
+import QRScanner from './pages/QrReader'
 
 function App() {
     return (
@@ -30,6 +32,7 @@ function App() {
                         <Route path="detail">
                             <Route path="item/:itemId" element={<ItemDetail />} />
                         </Route>
+                        <Route path="qr" element={<QRScanner />}/>
                     </Routes>
                 </ChestProvider>
             </UserProvider>
