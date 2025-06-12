@@ -6,5 +6,6 @@ export type Chest = {
     description: string;
     caseNumber: number;
     caseTotal: number;
-    driveUrl: string
+    driveUrl: string;
+    location: string;
 };

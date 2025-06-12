@@ -25,7 +25,8 @@ export default function ItemDetail() {
                     description: data.description,
                     caseNumber: data.case_number,
                     caseTotal: data.case_total,
-                    driveUrl: data.drive_url
+                    driveUrl: data.drive_url,
+                    location: data.location
                 });
             } catch (error) {
                 console.error("Error fetching chest data:", error);
@@ -85,6 +86,11 @@ export default function ItemDetail() {
                     <div className="flex items-center gap-4">
                         <span className="font-semibold">Case:</span>
                         <span>{chest.caseNumber} of {chest.caseTotal}</span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        <span className="font-semibold">Location:</span>
+                        <span>{chest.location}</span>
                     </div>
 
                     <div className="flex items-center gap-4">

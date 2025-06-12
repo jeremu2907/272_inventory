@@ -1,6 +1,12 @@
 # from django.shortcuts import render
+from django.forms import ValidationError
 from django.http import JsonResponse, HttpRequest
 from django.db.models import Q
+
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.db import transaction
 
 from .models import Item, Chest
 
@@ -90,3 +96,38 @@ def SearchAny(request: HttpRequest):
             }, safe=False)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
+    
+@api_view(['POST'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+@transaction.atomic
+def UpdateLocation(request):
+    user = request.user
+
+    if not user.is_staff:
+        raise ValidationError("User role not permitted.")
+
+    data = request.data
+    location = data.get("location")
+    chest_list = data.get("chest_list")
+
+    if not location or not chest_list:
+        raise ValidationError("Both 'location' and 'chest_list' are required.")
+
+    chest_obj = []
+    for chest in chest_list:
+        serial = chest.get("serial")
+        case_number = chest.get("case_number")
+
+        if not serial or case_number is None:
+            continue  # Skip invalid entries
+
+        obj = Chest.objects.filter(serial=serial, case_number=case_number).first()
+        if obj:
+            obj.location = location
+            chest_obj.append(obj)
+
+    if chest_obj:
+        Chest.objects.bulk_update(chest_obj, ['location'])
+
+    return JsonResponse({"message": "location updated"}, status=200)

@@ -143,6 +143,11 @@ export default function MenuBar() {
                                 Checked out items
                             </Button>
                         </Link>
+                        {user.isStaff && <Link to="/relocate" className="w-full">
+                            <Button variant="default" className="w-full" autoFocus={false} onClick={closeMenu}>
+                                Relocate chests
+                            </Button>
+                        </Link>}
                         <Button variant="destructive" className='w-full text-[white]' onClick={onSignOut} autoFocus={false}>
                             Sign out
                         </Button>
