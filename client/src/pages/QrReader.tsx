@@ -13,6 +13,7 @@ const QRCodeScanner: React.FC = () => {
     const scanRegionId = 'html5qr-code-full-region';
     const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
     const [serialCaseNumber, setSerialCaseNumber] = useState<scanType[]>([]);
+    const [loading, setLoading] = useState<boolean>(false);
     const serialCaseNumberRef = useRef<scanType[]>([]);
 
     const extractParams = (url: string): scanType | null => {
@@ -39,6 +40,7 @@ const QRCodeScanner: React.FC = () => {
     };
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        setLoading(true)
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         console.log(formData)
@@ -57,6 +59,8 @@ const QRCodeScanner: React.FC = () => {
         } catch (e) {
             toast.error("Could not update location for chests")
             console.error("did not work")
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -127,9 +131,13 @@ const QRCodeScanner: React.FC = () => {
                 </div>
             </div>
             <form onSubmit={onSubmit}>
-                <Input type="text" placeholder='new location' className='mt-4' required  name='location'/>
-                <Button className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] my-4" type='submit'>
-                    <span>Update location for {serialCaseNumber.length} chests</span>
+                <Input type="text" placeholder='new location' className='mt-4' required name='location' />
+                <Button className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] my-4" type='submit' disabled={loading}>
+                    {loading ?
+                        <span>Updating...</span>
+                        :
+                        <span>Update location for {serialCaseNumber.length} chests</span>
+                    }
                 </Button>
             </form>
         </div>
