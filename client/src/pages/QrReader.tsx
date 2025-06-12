@@ -1,67 +1,43 @@
-import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
+import { Html5QrcodeScanner } from 'html5-qrcode';
 import { useEffect, useRef } from 'react';
 
-const QRScanner = () => {
-    const qrCodeRegionId = "reader";
-    const scannerRef = useRef<Html5Qrcode | null>(null);
+const QRCodeScanner = () => {
+    const scannerRef = useRef<Html5QrcodeScanner | null>(null);
+    const scanRegionId = 'html5qr-code-full-region';
 
     useEffect(() => {
-        const html5QrCode = new Html5Qrcode(qrCodeRegionId);
-        scannerRef.current = html5QrCode;
+        if (!scannerRef.current) {
+            scannerRef.current = new Html5QrcodeScanner(
+                scanRegionId,
+                { fps: 5, qrbox: 250 },
+                false
+            );
+        }
 
-        Html5Qrcode.getCameras().then((devices) => {
-            if (devices && devices.length) {
-                const rearCamera = devices.find(device =>
-                    /back|rear|environment/i.test(device.label)
-                ) || devices[0];
+        const html5QrcodeScanner = scannerRef.current;
+        const container = document.getElementById(scanRegionId);
 
-                html5QrCode
-                    .start(
-                        rearCamera.id,
-                        {
-                            fps: 5,
-                            qrbox: (vw, vh) => {
-                                const size = Math.min(vw, vh) * 0.8;
-                                return { width: size, height: size };
-                            },
-                        },
-                        (decodedText) => {
-                            console.log("Scanned:", decodedText);
-                        },
-                        (_) => {
-                            // handle scan error if needed
-                        }
-                    )
-                    .catch((err) => {
-                        console.error("Failed to start scanning:", err);
-                    });
-            }
-        });
+        if (html5QrcodeScanner && container?.innerHTML === '') {
+            html5QrcodeScanner.render(
+                (decodedText, _) => {
+                    console.log('Decoded text:', decodedText);
+                },
+                (_) => {}
+            );
+        }
 
-        // ✅ Cleanup on unmount
         return () => {
-            const scanner = scannerRef.current;
-            if (scanner) {
-                const state = scanner.getState();
-                if (state !== Html5QrcodeScannerState.NOT_STARTED) {
-                    scanner
-                        .stop()
-                        .then(() => scanner.clear())
-                        .catch((err) => console.error("Failed to stop/clear scanner:", err));
-                }
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.clear();
             }
         };
     }, []);
 
     return (
         <div>
-            <h2>QR Code Scanner</h2>
-            <div
-                id={qrCodeRegionId}
-                style={{ width: '100%', maxWidth: '400px', aspectRatio: '1 / 1' }}
-            />
+            <div id={scanRegionId} />;
         </div>
-    );
+    )
 };
 
-export default QRScanner;
+export default QRCodeScanner;
