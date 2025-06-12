@@ -1,3 +1,4 @@
+import { AxiosAuthInstance } from '@/axios/AxiosAuthInstance';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Html5Qrcode, Html5QrcodeScannerState } from 'html5-qrcode';
@@ -36,6 +37,28 @@ const QRCodeScanner: React.FC = () => {
             return null;
         }
     };
+
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        console.log(formData)
+        try {
+            await AxiosAuthInstance().post(
+                "chest/chest/location/update",
+                {
+                    location: formData.get('location') as string,
+                    chest_list: serialCaseNumber.map((item: scanType) => ({
+                        serial: item.serial,
+                        case_number: item.caseNumber
+                    }))
+                }
+            );
+            toast.success("Success")
+        } catch (e) {
+            toast.error("Could not update location for chests")
+            console.error("did not work")
+        }
+    }
 
     useEffect(() => {
         // Keep the ref in sync with latest state
@@ -103,10 +126,12 @@ const QRCodeScanner: React.FC = () => {
                     ))}
                 </div>
             </div>
-            <Input type="text" placeholder='new location' className='mt-4'/>
-            <Button className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] my-4">
-                <span>Update location for {serialCaseNumber.length} chests</span>
-            </Button>
+            <form onSubmit={onSubmit}>
+                <Input type="text" placeholder='new location' className='mt-4' required  name='location'/>
+                <Button className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] my-4" type='submit'>
+                    <span>Update location for {serialCaseNumber.length} chests</span>
+                </Button>
+            </form>
         </div>
     );
 };

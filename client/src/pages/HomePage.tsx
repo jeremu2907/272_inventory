@@ -111,7 +111,8 @@ export default function HomePage() {
                     description: response.data.description,
                     caseNumber: response.data.case_number,
                     caseTotal: response.data.case_total,
-                    driveUrl: response.data.drive_url
+                    driveUrl: response.data.drive_url,
+                    location: response.data.location
                 };
                 setScannedChest(chest);
                 setChest(chest);

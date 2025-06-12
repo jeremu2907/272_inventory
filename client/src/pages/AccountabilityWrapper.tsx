@@ -33,7 +33,8 @@ export default function AppWrapper() {
                 description: data.description,
                 caseNumber: data.case_number,
                 caseTotal: data.case_total,
-                driveUrl: data.drive_url
+                driveUrl: data.drive_url,
+                location: data.location
             };
             setChest(chest);
         } catch (error) {
@@ -67,7 +68,11 @@ export default function AppWrapper() {
                     }
                     {chestSerial && chestcaseNumber && <><BreadcrumbItem>
                         {/* <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestcaseNumber} of {caseTotal}</strong></BreadcrumbLink> */}
-                        <p className="text-sm text-muted-foreground"><strong>{chestcaseNumber} of {caseTotal}</strong></p>
+                        <p className="text-sm text-muted-foreground">case {chestcaseNumber} of {caseTotal}</p>
+                    </BreadcrumbItem><BreadcrumbSeparator /></>}
+                    {chestSerial && chestcaseNumber && <><BreadcrumbItem>
+                        {/* <BreadcrumbLink href={`/${plt}/${chestSerial}`}><strong>{chestcaseNumber} of {caseTotal}</strong></BreadcrumbLink> */}
+                        <p className="text-sm text-muted-foreground"><strong>@ {chest?.location}</strong></p>
                     </BreadcrumbItem></>}
                 </BreadcrumbList>
             </Breadcrumb>

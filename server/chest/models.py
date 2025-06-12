@@ -10,6 +10,7 @@ class Chest(models.Model):
     case_number = models.IntegerField(default=1)
     case_total = models.IntegerField(default=1)
     drive_url = models.CharField(max_length=200, default="")
+    location = models.CharField(max_length=50, default="")
     
     class Meta:
         unique_together = ('serial', 'case_number')

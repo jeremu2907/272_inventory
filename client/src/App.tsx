@@ -31,7 +31,7 @@ function App() {
                         <Route path="detail">
                             <Route path="item/:itemId" element={<ItemDetail />} />
                         </Route>
-                        <Route path="qr" element={<QRScanner />}/>
+                        <Route path="relocate" element={<QRScanner />}/>
                     </Routes>
                 </ChestProvider>
             </UserProvider>
