@@ -1,0 +1,13 @@
+name: Ping URL
+
+on:
+  schedule:
+    - cron: '*/14 6-17 * * *'
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping two URLs
+        run: |
+          curl -fsS https://two72-inventory.onrender.com/chest/search?term=divider
+          curl -fsS https://toolhub272.onrender.com/
