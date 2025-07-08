@@ -2,7 +2,7 @@ name: Ping URL
 
 on:
   schedule:
-    - cron: '*/12 6-17 * * *'
+    - cron: '*/10 6-17 * * *'
   workflow_dispatch:  # 👈 Enables manual runs
 
 jobs:
