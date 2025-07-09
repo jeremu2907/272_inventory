@@ -13,4 +13,5 @@ jobs:
       - name: Ping two URLs with retry
         run: |
           curl --location 'https://two72-inventory.onrender.com/chest/search?term=divider'
+          sleep 5
           curl --location 'https://toolhub272.onrender.com/'
