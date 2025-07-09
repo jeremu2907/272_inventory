@@ -2,7 +2,7 @@ name: Ping URL
 
 on:
   schedule:
-    - cron: '*/10 11-22 * * *'  # Every 10 minutes from 6 AM to 5:59 PM UTC
+    - cron: '*/5 11-23 * * *'  # Every 10 minutes from 6 AM to 5:59 PM UTC
   workflow_dispatch:  # Allows manual triggering
 
 jobs:
@@ -12,31 +12,5 @@ jobs:
     steps:
       - name: Ping two URLs with retry
         run: |
-          retry() {
-            local url=$1
-            local max_attempts=5
-            local delay=5
-
-            for attempt in $(seq 1 $max_attempts); do
-              echo "Attempt $attempt: $url"
-              status=$(curl -s -o /dev/null -w "%{http_code}" "$url")
-
-              if [[ "$status" == "200" ]]; then
-                echo "✅ Success"
-                return 0
-              elif [[ "$status" == "429" ]]; then
-                echo "⏳ Rate limited. Retrying in $delay seconds..."
-                sleep $delay
-                delay=$((delay * 2))  # Exponential backoff
-              else
-                echo "⚠️ Unexpected HTTP status: $status"
-                return 1
-              fi
-            done
-
-            echo "❌ Failed after $max_attempts attempts"
-            return 1
-          }
-
-          retry "https://two72-inventory.onrender.com/chest/search?term=divider"
-          retry "https://toolhub272.onrender.com/"
+          curl --location 'https://two72-inventory.onrender.com/chest/search?term=divider'
+          curl --location 'https://toolhub272.onrender.com/'
