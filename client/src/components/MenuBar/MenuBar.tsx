@@ -143,6 +143,11 @@ export default function MenuBar() {
                                 Checked out items
                             </Button>
                         </Link>
+                        <Link to="https://two72-inventory.onrender.com/admin" target="_blank" className="w-full">
+                            <Button variant="default" className="w-full" autoFocus={false} onClick={closeMenu}>
+                                Admin page
+                            </Button>
+                        </Link>
                         {user.isStaff && <Link to="/relocate" className="w-full">
                             <Button variant="default" className="w-full" autoFocus={false} onClick={closeMenu}>
                                 Relocate chests

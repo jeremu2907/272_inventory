@@ -81,12 +81,14 @@ export default function HomePage() {
     };
 
     const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchTerm(e.target.value);
-        if (e.target.value.trim() !== "") {
+        const term = e.target.value;
+        setSearchTerm(term);
+        if (term.trim() !== "") {
             setInitSearch(true);
-        }
-        else {
+            navigate(`?term=${encodeURIComponent(term)}`, { replace: true });
+        } else {
             setInitSearch(false);
+            navigate("");
         }
     }
 
@@ -139,6 +141,14 @@ export default function HomePage() {
             }
         };
     }, [searchTerm]); // runs every time searchTerm changes
+
+    useEffect(() => {
+        const termFromUrl = searchParams.get("term");
+        if (termFromUrl) {
+            setSearchTerm(termFromUrl);
+            setInitSearch(true);
+        }
+    }, [searchParams]);
 
     return (
         <div className="p-4 flex flex-col gap-4 justify-center min-h-[80vh]">
