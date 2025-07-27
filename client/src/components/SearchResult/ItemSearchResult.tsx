@@ -3,9 +3,15 @@ import { Link } from "react-router";
 import { Button } from "../ui/button";
 import Arrow from '@/assets/arrow-right.svg';
 
-export default function ItemSearchResult({ item }: { item: Item }) {
+import type React from "react";
+
+export default function ItemSearchResult({ item, id, onClick }: { item: Item, id: string, onClick: React.MouseEventHandler<HTMLDivElement> }) {
     return (
-        <div className="align-items-start flex border-b border-border p-2 hover:bg-accent hover:text-accent-foreground mt-2">
+        <div
+            className="align-items-start flex border-b border-border p-2 hover:bg-accent hover:text-accent-foreground mt-2"
+            id={id}
+            onClick={onClick}
+        >
             <Link to={`/detail/item/${item.id}`} state={item} className="w-full">
                 <Button variant="ghost" className="p-0 w-full h-fit flex items-between">
                     <div className="text-left flex flex-col whitespace-normal">

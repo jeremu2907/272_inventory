@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useChest } from "@/context/ChestContext";
-import { pltSuffix } from "@/lib/utils";
+import { localGet, localRemove, localSet, pltSuffix } from "@/lib/utils";
 import type { Chest } from "@/types/Chest";
 import type { Item } from "@/types/Item";
 import { useEffect, useRef, useState } from "react";
@@ -20,6 +20,7 @@ export default function HomePage() {
     const [searchParams] = useSearchParams();
     let scannedSerial = null
     let scannedCaseNumber = null
+    const SCROLL_TO_ID = "scroll-to-id";
 
     const isFromScan = searchParams.get("serial") !== null && searchParams.get("caseNumber") !== null;
     if (isFromScan) {
@@ -33,6 +34,8 @@ export default function HomePage() {
     const [initSearch, setInitSearch] = useState(false);
     const [searching, setSearching] = useState(false);
     const [scannedChest, setScannedChest] = useState<Chest | null>(null);
+    const [scrollToId, setScrollToId] = useState<string | null>(null);
+    const [accordionOpenIdx, setAccordionOpenIdx] = useState<string | undefined>(undefined);
 
     const navigate = useNavigate();
     const { setChest } = useChest();
@@ -74,6 +77,10 @@ export default function HomePage() {
                     qtyReal: element.qty_real
                 } as Item;
             }) || []);
+
+            if (scrollToId !== null && scrollToId.trim().length > 0) {
+
+            }
         } catch (error) {
             console.error("Error fetching search results:", error);
         }
@@ -150,6 +157,43 @@ export default function HomePage() {
         }
     }, [searchParams]);
 
+    useEffect(() => {
+        const val: (string | null) = localGet(SCROLL_TO_ID) || null;
+        setScrollToId(val);
+        // localRemove(SCROLL_TO_ID);
+
+        if (val === null) return;
+
+        if (val.includes("items")) {
+            setAccordionOpenIdx("items");
+        } else if (val.includes("chests")) {
+            setAccordionOpenIdx("chests");
+        } else {
+            setAccordionOpenIdx(undefined);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (scrollToId !== null && itemResults.length > 0) {
+            setTimeout(function () {
+                const el = document.getElementById(scrollToId);
+
+                if (!el) {
+                    return;
+                }
+
+                el.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+
+                el.style.backgroundColor = "#007bff11";
+
+                localRemove(SCROLL_TO_ID)
+            }, 100);
+        }
+    }, [scrollToId, itemResults.length, accordionOpenIdx]);
+
     return (
         <div className="p-4 flex flex-col gap-4 justify-center min-h-[80vh]">
             {isFromScan && <>{scannedChest ?
@@ -203,9 +247,9 @@ export default function HomePage() {
             {chestResults.length === 0 && itemResults.length === 0 && initSearch && !searching && (
                 <p className="text-muted-foreground">No results found</p>
             )}
-            <Accordion type="single" collapsible className="mt-4">
+            <Accordion type="single" className="mt-4" value={accordionOpenIdx} onValueChange={setAccordionOpenIdx}>
                 {chestResults.length > 0 && (
-                    <AccordionItem value="item-1">
+                    <AccordionItem value="chests">
                         <AccordionTrigger><h2 className="text-lg font-bold text-left">Chest</h2></AccordionTrigger>
                         <AccordionContent>
                             {chestResults.map(chest => (
@@ -215,13 +259,18 @@ export default function HomePage() {
                     </AccordionItem>)
                 }
                 {itemResults.length > 0 &&
-                    <AccordionItem value="item-2">
+                    <AccordionItem value="items">
                         <AccordionTrigger>
                             <h2 className="text-lg font-bold text-left">Individual Items</h2>
                         </AccordionTrigger>
                         <AccordionContent>
                             {itemResults.map(item => (
-                                <ItemSearchResult key={item.id} item={item} />
+                                <ItemSearchResult
+                                    key={item.id}
+                                    item={item}
+                                    id={`items-id-${item.id}`}
+                                    onClick={() => { localSet(SCROLL_TO_ID, `items-id-${item.id}`) }}
+                                />
                             ))}
                         </AccordionContent>
                     </AccordionItem>
