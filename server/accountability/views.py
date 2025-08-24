@@ -200,6 +200,19 @@ def GetChestCheckedOutItemsByUser(request):
     except Exception as e:
         return JsonResponse({'error': 'Internal server error', 'details': str(e)}, status=500)
  
+@api_view(['GET'])
+@authentication_classes([JWTAuthentication])
+@permission_classes([IsAuthenticated])
+def IsChestCheckedOut(request: HttpRequest):
+    chest_id = request.GET.get('chest_id')
+    
+    checked_out_chest = UserChestCustody.objects.filter(chest=chest_id).exists()
+    if checked_out_chest:
+        return JsonResponse({'message': 'Chest already checked out'}, status=400)
+    
+    return JsonResponse({'message': 'Chest is available'}, status=200)
+    
+ 
 @api_view(['POST'])
 @authentication_classes([JWTAuthentication])
 @permission_classes([IsAuthenticated])
@@ -219,6 +232,10 @@ def Checkout(request: HttpRequest):
         chest = Chest.objects.filter(id=chest_id).first()
         if not chest:
             raise ValidationError('Chest not found')
+        
+        checked_out_chest = UserChestCustody.objects.filter(chest=chest_id).exists()
+        if checked_out_chest:
+            return JsonResponse({'message': 'Chest already checked out'}, status=400)
 
         chest_items = list(Item.objects.filter(chest=chest))
         if not chest_items:

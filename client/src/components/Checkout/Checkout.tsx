@@ -145,6 +145,7 @@ export default function ChestDetail() {
     const [supervisorDialogOpen, setSupervisorDialogOpen] = useState(false);
     const [inProgress, setInProgress] = React.useState(false);
     const [pdfList, setPdfList] = React.useState([]);
+    const [isChestAvailable, setIsChestAvailable] = React.useState(false);
 
     const table = useReactTable<Item>({
         data: items,
@@ -189,7 +190,6 @@ export default function ChestDetail() {
                 }
             }
             setItems(itemList);
-
         } catch (error) {
             console.error('Error fetching items:', error);
         } finally {
@@ -233,6 +233,23 @@ export default function ChestDetail() {
         }
     }
 
+    const fetchIsChestAvailable = async (chestId: number = 0) => {
+        try {
+            const response2 = await AxiosAuthInstance().get(
+                `accountability/chest/isAvailable?chest_id=${chestId}`
+            );
+            if (response2.status === 200) {
+                setIsChestAvailable(true);
+            }
+        } catch (e) {
+            setIsChestAvailable(false);
+
+            return false;
+        }
+
+        return true;
+    }
+
     const submitCompleteChestCheckout = async (e: React.FormEvent<HTMLFormElement>) => {
         setInProgress(true);
         e.preventDefault(); // prevent default page reload
@@ -240,11 +257,16 @@ export default function ChestDetail() {
             toast.info("Chest still loading");
             return;
         }
+        if(await fetchIsChestAvailable(chestState?.id) === false) {
+            toast.info("Chest unavailable");
+            return;
+        }
         try {
             await AxiosAuthInstance().post("accountability/checkout", { chest_id: chest?.id });
             toast.success("Checkout successful!");
             setSupervisorDialogOpen(false);
             fetchItems(chest.serial, chest.caseNumber);
+            fetchIsChestAvailable(chestState?.id)
             navigate(location.pathname, { replace: true, state: {} });
         } catch (error: AxiosError | any) {
             if (error.response && error.response.status === 401) {
@@ -290,6 +312,7 @@ export default function ChestDetail() {
     useEffect(() => {
         if (chestState) {
             fetchItems(chestState.serial, chestState.caseNumber);
+            fetchIsChestAvailable(chestState.id);
         }
     }, [chestState])
 
@@ -320,8 +343,8 @@ export default function ChestDetail() {
                     <h1 className='text-lg font-bold'>{chestState?.description}</h1>
                     <p className="text-sm text-muted-foreground">{chestState?.nsn}</p>
                 </div>
-                <Button className='p-2' variant={"secondary"} onClick={() => {window.open(chest?.driveUrl); console.log(chest?.driveUrl)}}>
-                    <img src={DriveLogo} alt="drive-logo" height={30} width={30}/>
+                <Button className='p-2' variant={"secondary"} onClick={() => { window.open(chest?.driveUrl); console.log(chest?.driveUrl) }}>
+                    <img src={DriveLogo} alt="drive-logo" height={30} width={30} />
                 </Button>
             </div>
             {pdfList.length > 0 &&
@@ -331,8 +354,8 @@ export default function ChestDetail() {
                             <p className="underline">View past inventories</p>
                         </AccordionTrigger>
                         <AccordionContent className="max-h-40 overflow-y-auto">
-                            {pdfList.map((item: {id: Number, created_at: string}, idx) =>
-                                <p className="underline cursor-pointer my-2" key={`pdf-item-${idx}`} onClick={() => {viewPdf(item.id)}}>
+                            {pdfList.map((item: { id: Number, created_at: string }, idx) =>
+                                <p className="underline cursor-pointer my-2" key={`pdf-item-${idx}`} onClick={() => { viewPdf(item.id) }}>
                                     {new Date(item.created_at).toLocaleString()}
                                 </p>
                             )}
@@ -341,9 +364,14 @@ export default function ChestDetail() {
                 </Accordion>
             }
             <div className="w-full">
-                {user?.isStaff && items.length > 0 &&
+                {user?.isStaff && items.length > 0 && isChestAvailable &&
                     <Button onClick={() => { setSupervisorDialogOpen(true) }} className="w-full bg-[#B2FFC4] hover:bg-[#C3FFD5] text-[black] mb-4">
                         <span>Checkout all items in chest</span>
+                    </Button>
+                }
+                {user?.isStaff && items.length > 0 && !isChestAvailable &&
+                    <Button disabled className='w-full mb-4'>
+                        <span>Case is already checked out</span>
                     </Button>
                 }
                 <div className="flex items-center pb-4 gap-1 w-full">
@@ -444,6 +472,7 @@ export default function ChestDetail() {
                                 );
                             })}
                         </div>
+                        {inProgress && <p className="font-bold">Please don't close or navigate away until done</p>}
                         <Button type="submit" className="w-full" disabled={inProgress}>
                             {inProgress ? <span>Checking out...</span> : <span>Confirm checkout</span>}
                         </Button>
@@ -468,7 +497,9 @@ export default function ChestDetail() {
                     <p>Items will be returned at the same quantity at time of checkout
                         unless an expendable item.</p>
                     <p>You will inventory these items at the end of use before returning them.</p>
-                    <DialogFooter>
+
+                    {inProgress && <p className="font-bold">Please don't close or navigate away until done</p>}
+                    <DialogFooter className="flex flex-col">
                         <form onSubmit={submitCompleteChestCheckout}>
                             <Button type="submit" className="w-full" disabled={inProgress}>
                                 {inProgress ? <span>Checking out...</span> : <span>Confirm checkout</span>}
